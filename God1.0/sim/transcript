@@ -1,0 +1,33 @@
+# vsim -c -do "run -all; quit -f" work.tb_ov5640_config 
+# Start time: 14:55:14 on Aug 01,2026
+# Loading work.tb_ov5640_config
+# Loading work.ov5640_config
+# Loading work.i2c_ctrl
+# ** Warning: (vsim-3017) ./tb_ov5640_config.v(30): [TFMPC] - Too few port connections. Expected 6, found 5.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_ov5640_config/u_dut File: ../rtl/ov5640_config.v
+# ** Warning: (vsim-3722) ./tb_ov5640_config.v(30): [TFMPC] - Missing connection for port 'cfg_progress'.
+# run -all
+# =======================================================
+#  tb_ov5640_config: 当前 ov5640_config SCCB 配置仿真
+#  DUT = ov5640_config (官方 i2c_ctrl, 257 寄存器)
+# =======================================================
+# [tb] 复位释放, 等待 config_done ...
+# [tb] config_done = 1, 开始比对写入 ...
+# [OK  ] 写事务数 = 257
+# [INFO] 前 8 个写入 (reg:data):
+#        #0: 3103 : 11   (期望 3103 : 11)
+#        #1: 3008 : 82   (期望 3008 : 82)
+#        #2: 3008 : 42   (期望 3008 : 42)
+#        #3: 3103 : 03   (期望 3103 : 03)
+#        #4: 3017 : ff   (期望 3017 : ff)
+#        #5: 3018 : ff   (期望 3018 : ff)
+#        #6: 3034 : 1a   (期望 3034 : 1a)
+#        #7: 3037 : 13   (期望 3037 : 13)
+#        ... (共 258 个)
+# -------------------------------------------------------
+# [PASS] 257 个寄存器全部按序写入, 与配置表一致, config_done 拉高
+# -------------------------------------------------------
+# ** Note: $finish    : ./tb_ov5640_config.v(184)
+#    Time: 62830300 ns  Iteration: 0  Instance: /tb_ov5640_config
+# End time: 14:55:17 on Aug 01,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 2

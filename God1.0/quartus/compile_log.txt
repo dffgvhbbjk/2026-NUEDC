@@ -1,0 +1,424 @@
+Info: *******************************************************************
+Info: Running Quartus Prime Analysis & Synthesis
+    Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
+    Info: Copyright (C) 2018  Intel Corporation. All rights reserved.
+    Info: Your use of Intel Corporation's design tools, logic functions 
+    Info: and other software and tools, and its AMPP partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Intel Program License 
+    Info: Subscription Agreement, the Intel Quartus Prime License Agreement,
+    Info: the Intel FPGA IP License Agreement, or other applicable license
+    Info: agreement, including, without limitation, that your use is for
+    Info: the sole purpose of programming logic devices manufactured by
+    Info: Intel and sold by Intel or its authorized distributors.  Please
+    Info: refer to the applicable agreement for further details.
+    Info: Processing started: Sat Aug 01 11:29:56 2026
+Info: Command: quartus_map --read_settings_files=on vga_oscilloscope
+Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
+Info (20030): Parallel compilation is enabled and will use 16 of the 24 processors detected
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/vga_ctrl_simple.v
+    Info (12023): Found entity 1: vga_ctrl_simple File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_ctrl_simple.v Line: 15
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/vga_waveform.v
+    Info (12023): Found entity 1: vga_waveform File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_waveform.v Line: 6
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/iis_slave_rx.v
+    Info (12023): Found entity 1: iis_slave_rx File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/iis_slave_rx.v Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/audio_fifo.v
+    Info (12023): Found entity 1: audio_fifo File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/audio_fifo.v Line: 30
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/vga_dual_mode_top.v
+    Info (12023): Found entity 1: vga_dual_mode_top File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 19
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/pile_length_calc.v
+    Info (12023): Found entity 1: pile_length_calc File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/pile_length_calc.v Line: 19
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/seg_display.v
+    Info (12023): Found entity 1: seg_display File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/seg_display.v Line: 19
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/buzzer_beep.v
+    Info (12023): Found entity 1: buzzer_beep File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/buzzer_beep.v Line: 8
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/uart_rx.v
+    Info (12023): Found entity 1: uart_rx File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_rx.v Line: 20
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/uart_tx.v
+    Info (12023): Found entity 1: uart_tx File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx.v Line: 25
+Warning (10229): Verilog HDL Expression warning at ov5640_config.v(358): truncated literal to match 4 bits File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 358
+Warning (10229): Verilog HDL Expression warning at ov5640_config.v(360): truncated literal to match 4 bits File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 360
+Warning (10229): Verilog HDL Expression warning at ov5640_config.v(362): truncated literal to match 4 bits File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 362
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/ov5640_config.v
+    Info (12023): Found entity 1: ov5640_config File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 8
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/ov5640_capture.v
+    Info (12023): Found entity 1: ov5640_capture File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_capture.v Line: 19
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/ov5640_poweron.v
+    Info (12023): Found entity 1: ov5640_poweron File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_poweron.v Line: 15
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/downsample.v
+    Info (12023): Found entity 1: downsample File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/downsample.v Line: 18
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/gap_detect.v
+    Info (12023): Found entity 1: gap_detect File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/gap_detect.v Line: 18
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/gap_vote.v
+    Info (12023): Found entity 1: gap_vote File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/gap_vote.v Line: 12
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/gap_calibrate.v
+    Info (12023): Found entity 1: gap_calibrate File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/gap_calibrate.v Line: 20
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/uart_tx_2m.v
+    Info (12023): Found entity 1: uart_tx_2M File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 26
+Info (12021): Found 1 design units, including 1 entities, in source file /users/31368/desktop/god1.0-sxt(7)/god1.0/rtl/uart_rx_2m.v
+    Info (12023): Found entity 1: uart_rx_2M File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_rx_2M.v Line: 13
+Info (12021): Found 1 design units, including 1 entities, in source file ip_core/clk_gen/clk_gen.v
+    Info (12023): Found entity 1: clk_gen File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/ip_core/clk_gen/clk_gen.v Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file ip_core/uart_fifo/uart_fifo.v
+    Info (12023): Found entity 1: uart_fifo File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/ip_core/uart_fifo/uart_fifo.v Line: 39
+Info (12127): Elaborating entity "vga_dual_mode_top" for the top level hierarchy
+Warning (10036): Verilog HDL or VHDL warning at vga_dual_mode_top.v(153): object "mode_sel" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 153
+Warning (10036): Verilog HDL or VHDL warning at vga_dual_mode_top.v(270): object "dummy_spare" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 270
+Warning (10036): Verilog HDL or VHDL warning at vga_dual_mode_top.v(461): object "trigger_level" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 461
+Warning (10230): Verilog HDL assignment warning at vga_dual_mode_top.v(441): truncated value with size 32 to match size of target (16) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 441
+Info (12128): Elaborating entity "clk_gen" for hierarchy "clk_gen:u_clk_gen" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 84
+Info (12128): Elaborating entity "altpll" for hierarchy "clk_gen:u_clk_gen|altpll:altpll_component" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/ip_core/clk_gen/clk_gen.v Line: 115
+Info (12130): Elaborated megafunction instantiation "clk_gen:u_clk_gen|altpll:altpll_component" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/ip_core/clk_gen/clk_gen.v Line: 115
+Info (12133): Instantiated megafunction "clk_gen:u_clk_gen|altpll:altpll_component" with the following parameter: File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/ip_core/clk_gen/clk_gen.v Line: 115
+    Info (12134): Parameter "bandwidth_type" = "AUTO"
+    Info (12134): Parameter "clk0_divide_by" = "5"
+    Info (12134): Parameter "clk0_duty_cycle" = "50"
+    Info (12134): Parameter "clk0_multiply_by" = "4"
+    Info (12134): Parameter "clk0_phase_shift" = "0"
+    Info (12134): Parameter "clk1_divide_by" = "55"
+    Info (12134): Parameter "clk1_duty_cycle" = "50"
+    Info (12134): Parameter "clk1_multiply_by" = "27"
+    Info (12134): Parameter "clk1_phase_shift" = "0"
+    Info (12134): Parameter "clk2_divide_by" = "220"
+    Info (12134): Parameter "clk2_duty_cycle" = "50"
+    Info (12134): Parameter "clk2_multiply_by" = "27"
+    Info (12134): Parameter "clk2_phase_shift" = "0"
+    Info (12134): Parameter "clk3_divide_by" = "25"
+    Info (12134): Parameter "clk3_duty_cycle" = "50"
+    Info (12134): Parameter "clk3_multiply_by" = "12"
+    Info (12134): Parameter "clk3_phase_shift" = "0"
+    Info (12134): Parameter "compensate_clock" = "CLK0"
+    Info (12134): Parameter "inclk0_input_frequency" = "20000"
+    Info (12134): Parameter "intended_device_family" = "Cyclone IV E"
+    Info (12134): Parameter "lpm_hint" = "CBX_MODULE_PREFIX=clk_gen"
+    Info (12134): Parameter "lpm_type" = "altpll"
+    Info (12134): Parameter "operation_mode" = "NORMAL"
+    Info (12134): Parameter "pll_type" = "AUTO"
+    Info (12134): Parameter "port_activeclock" = "PORT_UNUSED"
+    Info (12134): Parameter "port_areset" = "PORT_USED"
+    Info (12134): Parameter "port_clkbad0" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkbad1" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkloss" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkswitch" = "PORT_UNUSED"
+    Info (12134): Parameter "port_configupdate" = "PORT_UNUSED"
+    Info (12134): Parameter "port_fbin" = "PORT_UNUSED"
+    Info (12134): Parameter "port_inclk0" = "PORT_USED"
+    Info (12134): Parameter "port_inclk1" = "PORT_UNUSED"
+    Info (12134): Parameter "port_locked" = "PORT_USED"
+    Info (12134): Parameter "port_pfdena" = "PORT_UNUSED"
+    Info (12134): Parameter "port_phasecounterselect" = "PORT_UNUSED"
+    Info (12134): Parameter "port_phasedone" = "PORT_UNUSED"
+    Info (12134): Parameter "port_phasestep" = "PORT_UNUSED"
+    Info (12134): Parameter "port_phaseupdown" = "PORT_UNUSED"
+    Info (12134): Parameter "port_pllena" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scanaclr" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scanclk" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scanclkena" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scandata" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scandataout" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scandone" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scanread" = "PORT_UNUSED"
+    Info (12134): Parameter "port_scanwrite" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clk0" = "PORT_USED"
+    Info (12134): Parameter "port_clk1" = "PORT_USED"
+    Info (12134): Parameter "port_clk2" = "PORT_USED"
+    Info (12134): Parameter "port_clk3" = "PORT_USED"
+    Info (12134): Parameter "port_clk4" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clk5" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkena0" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkena1" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkena2" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkena3" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkena4" = "PORT_UNUSED"
+    Info (12134): Parameter "port_clkena5" = "PORT_UNUSED"
+    Info (12134): Parameter "port_extclk0" = "PORT_UNUSED"
+    Info (12134): Parameter "port_extclk1" = "PORT_UNUSED"
+    Info (12134): Parameter "port_extclk2" = "PORT_UNUSED"
+    Info (12134): Parameter "port_extclk3" = "PORT_UNUSED"
+    Info (12134): Parameter "self_reset_on_loss_lock" = "OFF"
+    Info (12134): Parameter "width_clock" = "5"
+Info (12021): Found 1 design units, including 1 entities, in source file db/clk_gen_altpll.v
+    Info (12023): Found entity 1: clk_gen_altpll File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/clk_gen_altpll.v Line: 30
+Info (12128): Elaborating entity "clk_gen_altpll" for hierarchy "clk_gen:u_clk_gen|altpll:altpll_component|clk_gen_altpll:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/altpll.tdf Line: 897
+Info (12128): Elaborating entity "ov5640_poweron" for hierarchy "ov5640_poweron:u_ov5640_poweron" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 101
+Info (12128): Elaborating entity "buzzer_beep" for hierarchy "buzzer_beep:u_buzzer_beep" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 282
+Info (12128): Elaborating entity "vga_ctrl_simple" for hierarchy "vga_ctrl_simple:u_vga_ctrl" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 299
+Warning (10230): Verilog HDL assignment warning at vga_ctrl_simple.v(79): truncated value with size 11 to match size of target (10) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_ctrl_simple.v Line: 79
+Info (12128): Elaborating entity "iis_slave_rx" for hierarchy "iis_slave_rx:u_iis_rx" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 343
+Info (12128): Elaborating entity "audio_fifo" for hierarchy "audio_fifo:u_adc_fifo" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 363
+Info (12128): Elaborating entity "dcfifo" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/audio_fifo.v Line: 75
+Info (12130): Elaborated megafunction instantiation "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/audio_fifo.v Line: 75
+Info (12133): Instantiated megafunction "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component" with the following parameter: File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/audio_fifo.v Line: 75
+    Info (12134): Parameter "intended_device_family" = "Cyclone IV E"
+    Info (12134): Parameter "lpm_numwords" = "256"
+    Info (12134): Parameter "lpm_showahead" = "OFF"
+    Info (12134): Parameter "lpm_type" = "dcfifo"
+    Info (12134): Parameter "lpm_width" = "24"
+    Info (12134): Parameter "lpm_widthu" = "8"
+    Info (12134): Parameter "overflow_checking" = "ON"
+    Info (12134): Parameter "rdsync_delaypipe" = "4"
+    Info (12134): Parameter "underflow_checking" = "ON"
+    Info (12134): Parameter "use_eab" = "ON"
+    Info (12134): Parameter "wrsync_delaypipe" = "4"
+Info (12021): Found 1 design units, including 1 entities, in source file db/dcfifo_92i1.tdf
+    Info (12023): Found entity 1: dcfifo_92i1 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 40
+Info (12128): Elaborating entity "dcfifo_92i1" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/dcfifo.tdf Line: 190
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_gray2bin_ugb.tdf
+    Info (12023): Found entity 1: a_gray2bin_ugb File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/a_gray2bin_ugb.tdf Line: 22
+Info (12128): Elaborating entity "a_gray2bin_ugb" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|a_gray2bin_ugb:rdptr_g_gray2bin" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 55
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_graycounter_rn6.tdf
+    Info (12023): Found entity 1: a_graycounter_rn6 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/a_graycounter_rn6.tdf Line: 24
+Info (12128): Elaborating entity "a_graycounter_rn6" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|a_graycounter_rn6:rdptr_g1p" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 59
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_graycounter_n5c.tdf
+    Info (12023): Found entity 1: a_graycounter_n5c File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/a_graycounter_n5c.tdf Line: 24
+Info (12128): Elaborating entity "a_graycounter_n5c" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|a_graycounter_n5c:wrptr_g1p" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 60
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_0c41.tdf
+    Info (12023): Found entity 1: altsyncram_0c41 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/altsyncram_0c41.tdf Line: 27
+Info (12128): Elaborating entity "altsyncram_0c41" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|altsyncram_0c41:fifo_ram" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 61
+Info (12021): Found 1 design units, including 1 entities, in source file db/dffpipe_1v8.tdf
+    Info (12023): Found entity 1: dffpipe_1v8 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dffpipe_1v8.tdf Line: 24
+Info (12128): Elaborating entity "dffpipe_1v8" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|dffpipe_1v8:rs_brp" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 68
+Info (12021): Found 1 design units, including 1 entities, in source file db/alt_synch_pipe_h9l.tdf
+    Info (12023): Found entity 1: alt_synch_pipe_h9l File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/alt_synch_pipe_h9l.tdf Line: 26
+Info (12128): Elaborating entity "alt_synch_pipe_h9l" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|alt_synch_pipe_h9l:rs_dgwp" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 70
+Info (12021): Found 1 design units, including 1 entities, in source file db/dffpipe_2v8.tdf
+    Info (12023): Found entity 1: dffpipe_2v8 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dffpipe_2v8.tdf Line: 24
+Info (12128): Elaborating entity "dffpipe_2v8" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|alt_synch_pipe_h9l:rs_dgwp|dffpipe_2v8:dffpipe13" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/alt_synch_pipe_h9l.tdf Line: 33
+Info (12021): Found 1 design units, including 1 entities, in source file db/alt_synch_pipe_i9l.tdf
+    Info (12023): Found entity 1: alt_synch_pipe_i9l File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/alt_synch_pipe_i9l.tdf Line: 26
+Info (12128): Elaborating entity "alt_synch_pipe_i9l" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|alt_synch_pipe_i9l:ws_dgrp" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 73
+Info (12021): Found 1 design units, including 1 entities, in source file db/dffpipe_3v8.tdf
+    Info (12023): Found entity 1: dffpipe_3v8 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dffpipe_3v8.tdf Line: 24
+Info (12128): Elaborating entity "dffpipe_3v8" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|alt_synch_pipe_i9l:ws_dgrp|dffpipe_3v8:dffpipe16" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/alt_synch_pipe_i9l.tdf Line: 33
+Info (12021): Found 1 design units, including 1 entities, in source file db/cmpr_f66.tdf
+    Info (12023): Found entity 1: cmpr_f66 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/cmpr_f66.tdf Line: 22
+Info (12128): Elaborating entity "cmpr_f66" for hierarchy "audio_fifo:u_adc_fifo|dcfifo:dcfifo_component|dcfifo_92i1:auto_generated|cmpr_f66:rdempty_eq_comp" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/dcfifo_92i1.tdf Line: 80
+Info (12128): Elaborating entity "pile_length_calc" for hierarchy "pile_length_calc:u_pile_calc" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 416
+Info (12128): Elaborating entity "seg_display" for hierarchy "seg_display:u_seg" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 455
+Info (12128): Elaborating entity "vga_waveform" for hierarchy "vga_waveform:u_waveform" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 475
+Warning (10230): Verilog HDL assignment warning at vga_waveform.v(57): truncated value with size 32 to match size of target (12) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_waveform.v Line: 57
+Warning (10230): Verilog HDL assignment warning at vga_waveform.v(58): truncated value with size 12 to match size of target (11) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_waveform.v Line: 58
+Warning (10776): Verilog HDL warning at vga_waveform.v(133): variable ri in static task or function draw_char_at may have unintended latch behavior File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_waveform.v Line: 133
+Warning (10776): Verilog HDL warning at vga_waveform.v(133): variable ci in static task or function draw_char_at may have unintended latch behavior File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_waveform.v Line: 133
+Warning (10776): Verilog HDL warning at vga_waveform.v(132): variable rd in static task or function draw_char_at may have unintended latch behavior File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_waveform.v Line: 132
+Info (12128): Elaborating entity "ov5640_config" for hierarchy "ov5640_config:u_ov5640_config" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 498
+Warning (10036): Verilog HDL or VHDL warning at ov5640_config.v(317): object "cur_reg" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 317
+Warning (10230): Verilog HDL assignment warning at ov5640_config.v(356): truncated value with size 6 to match size of target (4) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 356
+Warning (10230): Verilog HDL assignment warning at ov5640_config.v(358): truncated value with size 6 to match size of target (4) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 358
+Warning (10230): Verilog HDL assignment warning at ov5640_config.v(360): truncated value with size 6 to match size of target (4) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 360
+Warning (10230): Verilog HDL assignment warning at ov5640_config.v(362): truncated value with size 6 to match size of target (4) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 362
+Warning (10030): Net "config_rom.data_a" at ov5640_config.v(18) has no driver or initial value, using a default initial value '0' File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 18
+Warning (10030): Net "config_rom.waddr_a" at ov5640_config.v(18) has no driver or initial value, using a default initial value '0' File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 18
+Warning (10030): Net "config_rom.we_a" at ov5640_config.v(18) has no driver or initial value, using a default initial value '0' File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 18
+Info (12128): Elaborating entity "ov5640_capture" for hierarchy "ov5640_capture:u_ov5640_capture" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 518
+Warning (10230): Verilog HDL assignment warning at ov5640_capture.v(110): truncated value with size 12 to match size of target (10) File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_capture.v Line: 110
+Info (12128): Elaborating entity "downsample" for hierarchy "downsample:u_downsample" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 537
+Info (12128): Elaborating entity "gap_detect" for hierarchy "gap_detect:u_gap_detect" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 625
+Info (10264): Verilog HDL Case Statement information at gap_detect.v(105): all case item expressions in this case statement are onehot File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/gap_detect.v Line: 105
+Info (12128): Elaborating entity "gap_vote" for hierarchy "gap_vote:u_gap_vote" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 649
+Info (12128): Elaborating entity "gap_calibrate" for hierarchy "gap_calibrate:u_gap_calibrate" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 663
+Info (12128): Elaborating entity "uart_rx_2M" for hierarchy "uart_rx_2M:u_uart_rx_2M" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 694
+Info (12128): Elaborating entity "uart_rx" for hierarchy "uart_rx_2M:u_uart_rx_2M|uart_rx:u_rx" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_rx_2M.v Line: 38
+Info (12128): Elaborating entity "uart_tx_2M" for hierarchy "uart_tx_2M:u_uart_tx_2M" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 713
+Warning (10036): Verilog HDL or VHDL warning at uart_tx_2M.v(102): object "wr_sel_d3" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 102
+Warning (10036): Verilog HDL or VHDL warning at uart_tx_2M.v(136): object "gap_pix_lat" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 136
+Warning (10036): Verilog HDL or VHDL warning at uart_tx_2M.v(139): object "gap_mm_lat" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 139
+Warning (10036): Verilog HDL or VHDL warning at uart_tx_2M.v(140): object "gap_left_lat" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 140
+Warning (10036): Verilog HDL or VHDL warning at uart_tx_2M.v(141): object "gap_right_lat" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 141
+Warning (10036): Verilog HDL or VHDL warning at uart_tx_2M.v(211): object "status_byte" assigned a value but never read File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 211
+Info (12128): Elaborating entity "uart_tx" for hierarchy "uart_tx_2M:u_uart_tx_2M|uart_tx:u_tx" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx_2M.v Line: 173
+Warning (276027): Inferred dual-clock RAM node "uart_tx_2M:u_uart_tx_2M|frame_buf_b_rtl_0" from synchronous design logic.  The read-during-write behavior of a dual-clock RAM is undefined and may not match the behavior of the original design.
+Warning (276027): Inferred dual-clock RAM node "uart_tx_2M:u_uart_tx_2M|frame_buf_a_rtl_0" from synchronous design logic.  The read-during-write behavior of a dual-clock RAM is undefined and may not match the behavior of the original design.
+Warning (276020): Inferred RAM node "gap_vote:u_gap_vote|samples_rtl_0" from synchronous design logic.  Pass-through logic has been added to match the read-during-write behavior of the original design.
+Warning (276020): Inferred RAM node "gap_vote:u_gap_vote|samples_rtl_1" from synchronous design logic.  Pass-through logic has been added to match the read-during-write behavior of the original design.
+Info (276014): Found 1 instances of uninferred RAM logic
+    Info (276007): RAM logic "ov5640_config:u_ov5640_config|config_rom" is uninferred due to asynchronous read logic File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/ov5640_config.v Line: 18
+Critical Warning (127005): Memory depth (512) in the design file differs from memory depth (257) in the Memory Initialization File "C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/vga_oscilloscope.ram0_ov5640_config_c3a3e952.hdl.mif" -- setting initial value for remaining addresses to 0
+Info (19000): Inferred 5 megafunctions from design logic
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "vga_waveform:u_waveform|wave_buf_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 8
+        Info (286033): Parameter WIDTHAD_A set to 11
+        Info (286033): Parameter NUMWORDS_A set to 2048
+        Info (286033): Parameter WIDTH_B set to 8
+        Info (286033): Parameter WIDTHAD_B set to 11
+        Info (286033): Parameter NUMWORDS_B set to 2048
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M9K
+        Info (286033): Parameter INIT_FILE set to db/vga_oscilloscope.ram0_vga_waveform_e061d554.hdl.mif
+        Info (286033): Parameter READ_DURING_WRITE_MODE_MIXED_PORTS set to OLD_DATA
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "uart_tx_2M:u_uart_tx_2M|frame_buf_b_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 8
+        Info (286033): Parameter WIDTHAD_A set to 12
+        Info (286033): Parameter NUMWORDS_A set to 3072
+        Info (286033): Parameter WIDTH_B set to 8
+        Info (286033): Parameter WIDTHAD_B set to 12
+        Info (286033): Parameter NUMWORDS_B set to 3072
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK1
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "uart_tx_2M:u_uart_tx_2M|frame_buf_a_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 8
+        Info (286033): Parameter WIDTHAD_A set to 12
+        Info (286033): Parameter NUMWORDS_A set to 3072
+        Info (286033): Parameter WIDTH_B set to 8
+        Info (286033): Parameter WIDTHAD_B set to 12
+        Info (286033): Parameter NUMWORDS_B set to 3072
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK1
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "gap_vote:u_gap_vote|samples_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 10
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 10
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "gap_vote:u_gap_vote|samples_rtl_1" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 10
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 10
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+Info (278001): Inferred 1 megafunctions from design logic
+    Info (278003): Inferred multiplier megafunction ("lpm_mult") from the following logic: "Mult0" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 441
+Info (12130): Elaborated megafunction instantiation "vga_waveform:u_waveform|altsyncram:wave_buf_rtl_0"
+Info (12133): Instantiated megafunction "vga_waveform:u_waveform|altsyncram:wave_buf_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "DUAL_PORT"
+    Info (12134): Parameter "WIDTH_A" = "8"
+    Info (12134): Parameter "WIDTHAD_A" = "11"
+    Info (12134): Parameter "NUMWORDS_A" = "2048"
+    Info (12134): Parameter "WIDTH_B" = "8"
+    Info (12134): Parameter "WIDTHAD_B" = "11"
+    Info (12134): Parameter "NUMWORDS_B" = "2048"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_REG_B" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_B" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_B" = "NONE"
+    Info (12134): Parameter "ADDRESS_REG_B" = "CLOCK0"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+    Info (12134): Parameter "RAM_BLOCK_TYPE" = "M9K"
+    Info (12134): Parameter "INIT_FILE" = "db/vga_oscilloscope.ram0_vga_waveform_e061d554.hdl.mif"
+    Info (12134): Parameter "READ_DURING_WRITE_MODE_MIXED_PORTS" = "OLD_DATA"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_00p1.tdf
+    Info (12023): Found entity 1: altsyncram_00p1 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/altsyncram_00p1.tdf Line: 27
+Info (12130): Elaborated megafunction instantiation "uart_tx_2M:u_uart_tx_2M|altsyncram:frame_buf_b_rtl_0"
+Info (12133): Instantiated megafunction "uart_tx_2M:u_uart_tx_2M|altsyncram:frame_buf_b_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "DUAL_PORT"
+    Info (12134): Parameter "WIDTH_A" = "8"
+    Info (12134): Parameter "WIDTHAD_A" = "12"
+    Info (12134): Parameter "NUMWORDS_A" = "3072"
+    Info (12134): Parameter "WIDTH_B" = "8"
+    Info (12134): Parameter "WIDTHAD_B" = "12"
+    Info (12134): Parameter "NUMWORDS_B" = "3072"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_REG_B" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_B" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_B" = "NONE"
+    Info (12134): Parameter "ADDRESS_REG_B" = "CLOCK1"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_46d1.tdf
+    Info (12023): Found entity 1: altsyncram_46d1 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/altsyncram_46d1.tdf Line: 27
+Info (12130): Elaborated megafunction instantiation "gap_vote:u_gap_vote|altsyncram:samples_rtl_0"
+Info (12133): Instantiated megafunction "gap_vote:u_gap_vote|altsyncram:samples_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "DUAL_PORT"
+    Info (12134): Parameter "WIDTH_A" = "10"
+    Info (12134): Parameter "WIDTHAD_A" = "6"
+    Info (12134): Parameter "NUMWORDS_A" = "64"
+    Info (12134): Parameter "WIDTH_B" = "10"
+    Info (12134): Parameter "WIDTHAD_B" = "6"
+    Info (12134): Parameter "NUMWORDS_B" = "64"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_REG_B" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_B" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_B" = "NONE"
+    Info (12134): Parameter "ADDRESS_REG_B" = "CLOCK0"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_qcc1.tdf
+    Info (12023): Found entity 1: altsyncram_qcc1 File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/altsyncram_qcc1.tdf Line: 27
+Info (12130): Elaborated megafunction instantiation "lpm_mult:Mult0" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 441
+Info (12133): Instantiated megafunction "lpm_mult:Mult0" with the following parameter: File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 441
+    Info (12134): Parameter "LPM_WIDTHA" = "16"
+    Info (12134): Parameter "LPM_WIDTHB" = "19"
+    Info (12134): Parameter "LPM_WIDTHP" = "35"
+    Info (12134): Parameter "LPM_WIDTHR" = "35"
+    Info (12134): Parameter "LPM_WIDTHS" = "1"
+    Info (12134): Parameter "LPM_REPRESENTATION" = "UNSIGNED"
+    Info (12134): Parameter "INPUT_A_IS_CONSTANT" = "NO"
+    Info (12134): Parameter "INPUT_B_IS_CONSTANT" = "YES"
+    Info (12134): Parameter "MAXIMIZE_SPEED" = "5"
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_mult.tdf Line: 308
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/multcore.tdf Line: 228
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[1]", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/mpar_add.tdf Line: 78
+Info (12021): Found 1 design units, including 1 entities, in source file db/add_sub_ngh.tdf
+    Info (12023): Found entity 1: add_sub_ngh File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/add_sub_ngh.tdf Line: 22
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/mpar_add.tdf Line: 138
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/mpar_add.tdf Line: 78
+Info (12021): Found 1 design units, including 1 entities, in source file db/add_sub_rgh.tdf
+    Info (12023): Found entity 1: add_sub_rgh File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/db/add_sub_rgh.tdf Line: 22
+Info (12131): Elaborated megafunction instantiation "lpm_mult:Mult0|altshift:external_latency_ffs", which is child of megafunction instantiation "lpm_mult:Mult0" File: c:/intelfpga_lite/18.1/quartus/libraries/megafunctions/lpm_mult.tdf Line: 351
+Warning (13034): The following nodes have both tri-state and non-tri-state drivers
+    Warning (13035): Inserted always-enabled tri-state buffer between "cam_sccb_sclk" and its non-tri-state driver. File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 58
+Info (13000): Registers with preset signals will power-up high File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/uart_tx.v Line: 38
+Info (13003): DEV_CLRn pin will set, and not reset, register with preset signal due to NOT Gate Push-Back
+Warning (13009): TRI or OPNDRN buffers permanently enabled
+    Warning (13010): Node "cam_sccb_sclk~synth" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 58
+Info (286030): Timing-Driven Synthesis is running
+Info (17049): 10 registers lost all their fanouts during netlist optimizations.
+Info (144001): Generated suppressed messages file C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/quartus/output_files/vga_oscilloscope.map.smsg
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 1 node(s), including 0 DDIO, 1 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 3 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "btn_55" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 26
+    Warning (15610): No output dependent on input pin "btn_58" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 27
+    Warning (15610): No output dependent on input pin "btn_59" File: C:/Users/31368/Desktop/God1.0-sxt(7)/God1.0/rtl/vga_dual_mode_top.v Line: 28
+Info (21057): Implemented 4321 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 20 input pins
+    Info (21059): Implemented 25 output pins
+    Info (21060): Implemented 2 bidirectional pins
+    Info (21061): Implemented 4205 logic cells
+    Info (21064): Implemented 68 RAM segments
+    Info (21065): Implemented 1 PLLs
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 42 warnings
+    Info: Peak virtual memory: 4971 megabytes
+    Info: Processing ended: Sat Aug 01 11:30:46 2026
+    Info: Elapsed time: 00:00:50
+    Info: Total CPU time (on all processors): 00:02:14

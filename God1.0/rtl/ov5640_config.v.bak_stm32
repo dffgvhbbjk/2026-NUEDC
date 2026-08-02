@@ -1,0 +1,510 @@
+//======================================================================
+// Module: ov5640_config
+// Function: SCCB 协议配置 OV5640 寄存器
+//   上电后依次写入寄存器配置表, 完成后拉高 config_done
+//   SCCB 时钟 ~400kHz (50MHz / 125, 每半周期 125 个时钟)
+//   OV5640 设备地址: 0x78 (写), 寄存器地址 16-bit (高字节 + 低字节)
+//
+// 协议 (写事务, 每个寄存器):
+//   START → DEV_ADDR(0x78) + ACK → REG_HI + ACK → REG_LO + ACK
+//         → DATA + ACK → STOP
+//   每字节 8 数据位 + 1 ACK 位 = 9 位
+//   总步数: 1(START) + 4×9(字节) + 1(STOP) = 38 步
+//
+// Clock:  50MHz 系统时钟
+//======================================================================
+module ov5640_config (
+    input  wire        clk,           // 50MHz
+    input  wire        rst_n,
+    output reg         sclk,          // SCCB 时钟 (~400kHz)
+    inout  wire        sdat,          // SCCB 数据 (开漏)
+    output reg         config_done    // 配置完成
+);
+
+    //==================================================================
+    // 寄存器配置表 (ROM)
+    //   每项 24-bit: {reg_addr[15:0], reg_data[7:0]}
+    //   SVGA 800x600 @ YUV422 8-bit DVP, XCLK=24MHz
+    //   配置序列参考野火官方 OV5640 例程 (ov5640_cfg.v)
+    //   补齐野火 rom[207] 0x3008=0x02 唤醒 standby 等关键寄存器
+    //==================================================================
+
+    localparam REG_NUM = 246;
+
+    reg [23:0] config_rom [0:REG_NUM-1];
+
+    // 完全照搬野火官方 bsp_ov5640.c: RGB565_Init + RGB565_WVGA (854×480@30)
+    initial begin
+        config_rom[0] = {16'h3103, 8'h03};
+        config_rom[1] = {16'h3008, 8'h02};
+        config_rom[2] = {16'h3017, 8'hFF};
+        config_rom[3] = {16'h3018, 8'hFF};
+        config_rom[4] = {16'h3034, 8'h1A};
+        config_rom[5] = {16'h3037, 8'h13};
+        config_rom[6] = {16'h3108, 8'h01};
+        config_rom[7] = {16'h3630, 8'h36};
+        config_rom[8] = {16'h3631, 8'h0E};
+        config_rom[9] = {16'h3632, 8'hE2};
+        config_rom[10] = {16'h3633, 8'h12};
+        config_rom[11] = {16'h3621, 8'hE0};
+        config_rom[12] = {16'h3704, 8'hA0};
+        config_rom[13] = {16'h3703, 8'h5A};
+        config_rom[14] = {16'h3715, 8'h78};
+        config_rom[15] = {16'h3717, 8'h01};
+        config_rom[16] = {16'h370B, 8'h60};
+        config_rom[17] = {16'h3705, 8'h1A};
+        config_rom[18] = {16'h3905, 8'h02};
+        config_rom[19] = {16'h3906, 8'h10};
+        config_rom[20] = {16'h3901, 8'h0A};
+        config_rom[21] = {16'h3731, 8'h12};
+        config_rom[22] = {16'h3600, 8'h08};
+        config_rom[23] = {16'h3601, 8'h33};
+        config_rom[24] = {16'h302D, 8'h60};
+        config_rom[25] = {16'h3620, 8'h52};
+        config_rom[26] = {16'h371B, 8'h20};
+        config_rom[27] = {16'h471C, 8'h50};
+        config_rom[28] = {16'h3A13, 8'h43};
+        config_rom[29] = {16'h3A18, 8'h00};
+        config_rom[30] = {16'h3A19, 8'hF8};
+        config_rom[31] = {16'h3635, 8'h13};
+        config_rom[32] = {16'h3636, 8'h03};
+        config_rom[33] = {16'h3634, 8'h40};
+        config_rom[34] = {16'h3622, 8'h01};
+        config_rom[35] = {16'h3C01, 8'h34};
+        config_rom[36] = {16'h3C04, 8'h28};
+        config_rom[37] = {16'h3C05, 8'h98};
+        config_rom[38] = {16'h3C06, 8'h00};
+        config_rom[39] = {16'h3C07, 8'h08};
+        config_rom[40] = {16'h3C08, 8'h00};
+        config_rom[41] = {16'h3C09, 8'h1C};
+        config_rom[42] = {16'h3C0A, 8'h9C};
+        config_rom[43] = {16'h3C0B, 8'h40};
+        config_rom[44] = {16'h3810, 8'h00};
+        config_rom[45] = {16'h3811, 8'h10};
+        config_rom[46] = {16'h3812, 8'h00};
+        config_rom[47] = {16'h3708, 8'h64};
+        config_rom[48] = {16'h4001, 8'h02};
+        config_rom[49] = {16'h4005, 8'h1A};
+        config_rom[50] = {16'h3000, 8'h00};
+        config_rom[51] = {16'h3004, 8'hFF};
+        config_rom[52] = {16'h300E, 8'h58};
+        config_rom[53] = {16'h302E, 8'h00};
+        config_rom[54] = {16'h4300, 8'h6F};
+        config_rom[55] = {16'h501F, 8'h01};
+        config_rom[56] = {16'h440E, 8'h00};
+        config_rom[57] = {16'h5000, 8'hA7};
+        config_rom[58] = {16'h3A0F, 8'h30};
+        config_rom[59] = {16'h3A10, 8'h28};
+        config_rom[60] = {16'h3A1B, 8'h30};
+        config_rom[61] = {16'h3A1E, 8'h26};
+        config_rom[62] = {16'h3A11, 8'h60};
+        config_rom[63] = {16'h3A1F, 8'h14};
+        config_rom[64] = {16'h5800, 8'h23};
+        config_rom[65] = {16'h5801, 8'h14};
+        config_rom[66] = {16'h5802, 8'h0F};
+        config_rom[67] = {16'h5803, 8'h0F};
+        config_rom[68] = {16'h5804, 8'h12};
+        config_rom[69] = {16'h5805, 8'h26};
+        config_rom[70] = {16'h5806, 8'h0C};
+        config_rom[71] = {16'h5807, 8'h08};
+        config_rom[72] = {16'h5808, 8'h05};
+        config_rom[73] = {16'h5809, 8'h05};
+        config_rom[74] = {16'h580A, 8'h08};
+        config_rom[75] = {16'h580B, 8'h0D};
+        config_rom[76] = {16'h580C, 8'h08};
+        config_rom[77] = {16'h580D, 8'h03};
+        config_rom[78] = {16'h580E, 8'h00};
+        config_rom[79] = {16'h580F, 8'h00};
+        config_rom[80] = {16'h5810, 8'h03};
+        config_rom[81] = {16'h5811, 8'h09};
+        config_rom[82] = {16'h5812, 8'h07};
+        config_rom[83] = {16'h5813, 8'h03};
+        config_rom[84] = {16'h5814, 8'h00};
+        config_rom[85] = {16'h5815, 8'h01};
+        config_rom[86] = {16'h5816, 8'h03};
+        config_rom[87] = {16'h5817, 8'h08};
+        config_rom[88] = {16'h5818, 8'h0D};
+        config_rom[89] = {16'h5819, 8'h08};
+        config_rom[90] = {16'h581A, 8'h05};
+        config_rom[91] = {16'h581B, 8'h06};
+        config_rom[92] = {16'h581C, 8'h08};
+        config_rom[93] = {16'h581D, 8'h0E};
+        config_rom[94] = {16'h581E, 8'h29};
+        config_rom[95] = {16'h581F, 8'h17};
+        config_rom[96] = {16'h5820, 8'h11};
+        config_rom[97] = {16'h5821, 8'h11};
+        config_rom[98] = {16'h5822, 8'h15};
+        config_rom[99] = {16'h5823, 8'h28};
+        config_rom[100] = {16'h5824, 8'h46};
+        config_rom[101] = {16'h5825, 8'h26};
+        config_rom[102] = {16'h5826, 8'h08};
+        config_rom[103] = {16'h5827, 8'h26};
+        config_rom[104] = {16'h5828, 8'h64};
+        config_rom[105] = {16'h5829, 8'h26};
+        config_rom[106] = {16'h582A, 8'h24};
+        config_rom[107] = {16'h582B, 8'h22};
+        config_rom[108] = {16'h582C, 8'h24};
+        config_rom[109] = {16'h582D, 8'h24};
+        config_rom[110] = {16'h582E, 8'h06};
+        config_rom[111] = {16'h582F, 8'h22};
+        config_rom[112] = {16'h5830, 8'h40};
+        config_rom[113] = {16'h5831, 8'h42};
+        config_rom[114] = {16'h5832, 8'h24};
+        config_rom[115] = {16'h5833, 8'h26};
+        config_rom[116] = {16'h5834, 8'h24};
+        config_rom[117] = {16'h5835, 8'h22};
+        config_rom[118] = {16'h5836, 8'h22};
+        config_rom[119] = {16'h5837, 8'h26};
+        config_rom[120] = {16'h5838, 8'h44};
+        config_rom[121] = {16'h5839, 8'h24};
+        config_rom[122] = {16'h583A, 8'h26};
+        config_rom[123] = {16'h583B, 8'h28};
+        config_rom[124] = {16'h583C, 8'h42};
+        config_rom[125] = {16'h583D, 8'hCE};
+        config_rom[126] = {16'h5180, 8'hFF};
+        config_rom[127] = {16'h5181, 8'hF2};
+        config_rom[128] = {16'h5182, 8'h00};
+        config_rom[129] = {16'h5183, 8'h14};
+        config_rom[130] = {16'h5184, 8'h25};
+        config_rom[131] = {16'h5185, 8'h24};
+        config_rom[132] = {16'h5186, 8'h09};
+        config_rom[133] = {16'h5187, 8'h09};
+        config_rom[134] = {16'h5188, 8'h09};
+        config_rom[135] = {16'h5189, 8'h75};
+        config_rom[136] = {16'h518A, 8'h54};
+        config_rom[137] = {16'h518B, 8'hE0};
+        config_rom[138] = {16'h518C, 8'hB2};
+        config_rom[139] = {16'h518D, 8'h42};
+        config_rom[140] = {16'h518E, 8'h3D};
+        config_rom[141] = {16'h518F, 8'h56};
+        config_rom[142] = {16'h5190, 8'h46};
+        config_rom[143] = {16'h5191, 8'hF8};
+        config_rom[144] = {16'h5192, 8'h04};
+        config_rom[145] = {16'h5193, 8'h70};
+        config_rom[146] = {16'h5194, 8'hF0};
+        config_rom[147] = {16'h5195, 8'hF0};
+        config_rom[148] = {16'h5196, 8'h03};
+        config_rom[149] = {16'h5197, 8'h01};
+        config_rom[150] = {16'h5198, 8'h04};
+        config_rom[151] = {16'h5199, 8'h12};
+        config_rom[152] = {16'h519A, 8'h04};
+        config_rom[153] = {16'h519B, 8'h00};
+        config_rom[154] = {16'h519C, 8'h06};
+        config_rom[155] = {16'h519D, 8'h82};
+        config_rom[156] = {16'h519E, 8'h38};
+        config_rom[157] = {16'h5480, 8'h01};
+        config_rom[158] = {16'h5481, 8'h08};
+        config_rom[159] = {16'h5482, 8'h14};
+        config_rom[160] = {16'h5483, 8'h28};
+        config_rom[161] = {16'h5484, 8'h51};
+        config_rom[162] = {16'h5485, 8'h65};
+        config_rom[163] = {16'h5486, 8'h71};
+        config_rom[164] = {16'h5487, 8'h7D};
+        config_rom[165] = {16'h5488, 8'h87};
+        config_rom[166] = {16'h5489, 8'h91};
+        config_rom[167] = {16'h548A, 8'h9A};
+        config_rom[168] = {16'h548B, 8'hAA};
+        config_rom[169] = {16'h548C, 8'hB8};
+        config_rom[170] = {16'h548D, 8'hCD};
+        config_rom[171] = {16'h548E, 8'hDD};
+        config_rom[172] = {16'h548F, 8'hEA};
+        config_rom[173] = {16'h5490, 8'h1D};
+        config_rom[174] = {16'h5381, 8'h1E};
+        config_rom[175] = {16'h5382, 8'h5B};
+        config_rom[176] = {16'h5383, 8'h08};
+        config_rom[177] = {16'h5384, 8'h0A};
+        config_rom[178] = {16'h5385, 8'h7E};
+        config_rom[179] = {16'h5386, 8'h88};
+        config_rom[180] = {16'h5387, 8'h7C};
+        config_rom[181] = {16'h5388, 8'h6C};
+        config_rom[182] = {16'h5389, 8'h10};
+        config_rom[183] = {16'h538A, 8'h01};
+        config_rom[184] = {16'h538B, 8'h98};
+        config_rom[185] = {16'h5580, 8'h06};
+        config_rom[186] = {16'h5583, 8'h40};
+        config_rom[187] = {16'h5584, 8'h10};
+        config_rom[188] = {16'h5589, 8'h10};
+        config_rom[189] = {16'h558A, 8'h00};
+        config_rom[190] = {16'h558B, 8'hF8};
+        config_rom[191] = {16'h501D, 8'h40};
+        config_rom[192] = {16'h5300, 8'h08};
+        config_rom[193] = {16'h5301, 8'h30};
+        config_rom[194] = {16'h5302, 8'h10};
+        config_rom[195] = {16'h5303, 8'h00};
+        config_rom[196] = {16'h5304, 8'h08};
+        config_rom[197] = {16'h5305, 8'h30};
+        config_rom[198] = {16'h5306, 8'h08};
+        config_rom[199] = {16'h5307, 8'h16};
+        config_rom[200] = {16'h5309, 8'h08};
+        config_rom[201] = {16'h530A, 8'h30};
+        config_rom[202] = {16'h530B, 8'h04};
+        config_rom[203] = {16'h530C, 8'h06};
+        config_rom[204] = {16'h5025, 8'h00};
+        config_rom[205] = {16'h3035, 8'h21};
+        config_rom[206] = {16'h3036, 8'h72};
+        config_rom[207] = {16'h3820, 8'h42};
+        config_rom[208] = {16'h3814, 8'h31};
+        config_rom[209] = {16'h3815, 8'h31};
+        config_rom[210] = {16'h3800, 8'h00};
+        config_rom[211] = {16'h3801, 8'h00};
+        config_rom[212] = {16'h3802, 8'h00};
+        config_rom[213] = {16'h3803, 8'hBE};
+        config_rom[214] = {16'h3804, 8'h0A};
+        config_rom[215] = {16'h3805, 8'h3F};
+        config_rom[216] = {16'h3806, 8'h06};
+        config_rom[217] = {16'h3807, 8'hE4};
+        config_rom[218] = {16'h3808, 8'h03};
+        config_rom[219] = {16'h3809, 8'h56};
+        config_rom[220] = {16'h380A, 8'h01};
+        config_rom[221] = {16'h380B, 8'hE0};
+        config_rom[222] = {16'h380C, 8'h07};
+        config_rom[223] = {16'h380D, 8'h69};
+        config_rom[224] = {16'h380E, 8'h03};
+        config_rom[225] = {16'h380F, 8'h21};
+        config_rom[226] = {16'h3813, 8'h06};
+        config_rom[227] = {16'h3618, 8'h00};
+        config_rom[228] = {16'h3612, 8'h29};
+        config_rom[229] = {16'h3709, 8'h52};
+        config_rom[230] = {16'h370C, 8'h03};
+        config_rom[231] = {16'h3A02, 8'h09};
+        config_rom[232] = {16'h3A03, 8'h63};
+        config_rom[233] = {16'h3A14, 8'h09};
+        config_rom[234] = {16'h3A15, 8'h63};
+        config_rom[235] = {16'h4004, 8'h02};
+        config_rom[236] = {16'h3002, 8'h1C};
+        config_rom[237] = {16'h3006, 8'hC3};
+        config_rom[238] = {16'h4713, 8'h03};
+        config_rom[239] = {16'h4407, 8'h04};
+        config_rom[240] = {16'h460B, 8'h35};
+        config_rom[241] = {16'h460C, 8'h22};
+        config_rom[242] = {16'h4837, 8'h22};
+        config_rom[243] = {16'h3824, 8'h02};
+        config_rom[244] = {16'h5001, 8'hA3};
+        config_rom[245] = {16'h3503, 8'h00};
+    end
+
+    //==================================================================
+    // SCCB 半周期计数器
+    //   50MHz / 400kHz = 125, 每半周期 125 个时钟 = 2.5μs
+    //==================================================================
+    localparam HALF_MAX = 7'd124;
+    reg [6:0] clk_div;      // 0-124
+    reg       scl_phase;    // 0=SCL低半周期, 1=SCL高半周期
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            clk_div   <= 7'd0;
+            scl_phase <= 1'b0;
+        end else begin
+            if (clk_div == HALF_MAX) begin
+                clk_div   <= 7'd0;
+                scl_phase <= ~scl_phase;
+            end else begin
+                clk_div <= clk_div + 1'b1;
+            end
+        end
+    end
+
+    // 半周期完成脉冲 (在最后 1 拍产生)
+    wire half_done = (clk_div == HALF_MAX);
+
+    //==================================================================
+    // 事务步骤计数
+    //   step 0:      START
+    //   step 1-8:    DEV_ADDR (0x78) 数据位, step 9: ACK
+    //   step 10-17:  REG_HI 数据位,   step 18: ACK
+    //   step 19-26:  REG_LO 数据位,   step 27: ACK
+    //   step 28-35:  DATA 数据位,     step 36: ACK
+    //   step 37:     STOP
+    //==================================================================
+    localparam TOTAL_STEPS = 6'd38;
+    reg [5:0]  step;
+    reg [6:0]  reg_idx;
+    reg [23:0] cur_reg;
+
+    //==================================================================
+    // SDA 控制 (开漏)
+    //==================================================================
+    reg sdat_oe;
+    reg sdat_out;
+    assign sdat = sdat_oe ? sdat_out : 1'bz;
+
+    //==================================================================
+    // 当前发送的字节
+    //==================================================================
+    function [7:0] cur_byte;
+        input [5:0] s;
+        begin
+            if (s >= 6'd1 && s <= 6'd8)
+                cur_byte = 8'h78;                    // DEV_ADDR
+            else if (s >= 6'd10 && s <= 6'd17)
+                cur_byte = cur_reg[23:16];           // REG_HI
+            else if (s >= 6'd19 && s <= 6'd26)
+                cur_byte = cur_reg[15:8];            // REG_LO
+            else if (s >= 6'd28 && s <= 6'd35)
+                cur_byte = cur_reg[7:0];             // DATA
+            else
+                cur_byte = 8'hFF;
+        end
+    endfunction
+
+    //==================================================================
+    // 当前位在字节中的位置 (7=MSB, 0=LSB)
+    //   step 1/10/19/28 → bit 7
+    //   step 2/11/20/29 → bit 6
+    //   ...
+    //   step 8/17/26/35 → bit 0
+    //==================================================================
+    function [3:0] bit_idx;
+        input [5:0] s;
+        begin
+            if (s >= 6'd1 && s <= 6'd8)
+                bit_idx = 4'd8 - s;        // 7,6,5,4,3,2,1,0
+            else if (s >= 6'd10 && s <= 6'd17)
+                bit_idx = 4'd17 - s;       // 7,6,5,4,3,2,1,0
+            else if (s >= 6'd19 && s <= 6'd26)
+                bit_idx = 4'd26 - s;       // 7,6,5,4,3,2,1,0
+            else if (s >= 6'd28 && s <= 6'd35)
+                bit_idx = 4'd35 - s;       // 7,6,5,4,3,2,1,0
+            else
+                bit_idx = 4'd0;
+        end
+    endfunction
+
+    //==================================================================
+    // 判断当前步是否为 ACK 位
+    //==================================================================
+    function is_ack;
+        input [5:0] s;
+        begin
+            is_ack = (s == 6'd9) || (s == 6'd18) ||
+                     (s == 6'd27) || (s == 6'd36);
+        end
+    endfunction
+
+    //==================================================================
+    // 主状态机
+    //==================================================================
+    localparam ST_IDLE = 2'd0;
+    localparam ST_RUN  = 2'd1;
+    localparam ST_DONE = 2'd2;
+
+    reg [1:0] state;
+    reg [7:0] byte_tmp;   // 临时存放 cur_byte 返回值, 供位选择 (Verilog-2001 不支持函数返回值位选择)
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state       <= ST_IDLE;
+            step        <= 6'd0;
+            reg_idx     <= 7'd0;
+            cur_reg     <= 24'd0;
+            sclk        <= 1'b1;
+            sdat_oe     <= 1'b1;
+            sdat_out    <= 1'b1;
+            config_done <= 1'b0;
+        end else begin
+            case (state)
+                //----------------------------------------------------------
+                // IDLE: 等待一个 SCCB 周期后开始
+                //----------------------------------------------------------
+                ST_IDLE: begin
+                    sclk     <= 1'b1;
+                    sdat_oe  <= 1'b1;
+                    sdat_out <= 1'b1;
+                    if (half_done) begin
+                        state   <= ST_RUN;
+                        step    <= 6'd0;
+                        reg_idx <= 7'd0;
+                        cur_reg <= config_rom[0];
+                    end
+                end
+
+                //----------------------------------------------------------
+                // RUN: 执行 SCCB 写事务
+                //----------------------------------------------------------
+                ST_RUN: begin
+                    if (half_done) begin
+                        if (!scl_phase) begin
+                            // 刚结束 SCL 低半周期 → 进入 SCL 高半周期
+                            sclk <= 1'b1;
+                        end else begin
+                            // 刚结束 SCL 高半周期 → 进入 SCL 低半周期
+                            // 推进步骤
+                            sclk <= 1'b0;
+                            if (step == TOTAL_STEPS - 1) begin
+                                // 事务完成, 下一个寄存器
+                                if (reg_idx == REG_NUM - 1) begin
+                                    state       <= ST_DONE;
+                                    config_done <= 1'b1;
+                                end else begin
+                                    reg_idx <= reg_idx + 1'b1;
+                                    cur_reg <= config_rom[reg_idx + 1];
+                                    step    <= 6'd0;
+                                end
+                            end else begin
+                                step <= step + 1'b1;
+                            end
+                        end
+                    end
+
+                    //------------------------------------------------------
+                    // 设置 SDA (在 SCL 低半周期开始时放数据)
+                    //------------------------------------------------------
+                    case (step)
+                        //---- START: SCL 保持高, SDA 高→低 ----
+                        6'd0: begin
+                            sclk <= 1'b1;
+                            if (scl_phase) begin
+                                sdat_oe  <= 1'b1;
+                                sdat_out <= 1'b0;   // SDA 拉低 → START
+                            end else begin
+                                sdat_oe  <= 1'b1;
+                                sdat_out <= 1'b1;   // SDA 初始高
+                            end
+                        end
+
+                        //---- STOP: SCL 0→1, SDA 0→1 ----
+                        6'd37: begin
+                            if (scl_phase) begin
+                                sclk     <= 1'b1;
+                                sdat_oe  <= 1'b1;
+                                sdat_out <= 1'b1;   // SDA 拉高 → STOP
+                            end else begin
+                                sclk     <= 1'b0;
+                                sdat_oe  <= 1'b1;
+                                sdat_out <= 1'b0;   // SDA 保持低
+                            end
+                        end
+
+                        //---- ACK: 释放 SDA ----
+                        default: begin
+                            if (is_ack(step)) begin
+                                sclk    <= scl_phase;
+                                sdat_oe <= 1'b0;    // 释放 SDA (从机驱动)
+                            end else begin
+                                //---- 数据位 ----
+                                sclk     <= scl_phase;
+                                sdat_oe  <= 1'b1;
+                                byte_tmp  = cur_byte(step);                      // 先取字节 (阻塞赋值)
+                                sdat_out <= byte_tmp[bit_idx(step)];             // 再位选择索引
+                            end
+                        end
+                    endcase
+                end
+
+                //----------------------------------------------------------
+                // DONE: 配置完成
+                //----------------------------------------------------------
+                ST_DONE: begin
+                    sclk        <= 1'b1;
+                    sdat_oe     <= 1'b1;
+                    sdat_out    <= 1'b1;
+                    config_done <= 1'b1;
+                end
+
+                default: state <= ST_IDLE;
+            endcase
+        end
+    end
+
+endmodule

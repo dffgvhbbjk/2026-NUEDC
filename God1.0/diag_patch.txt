@@ -1,0 +1,258 @@
+============================================================
+诊断补丁使用说明
+============================================================
+由于权限限制,我无法直接修改 D:\QTdaima\ 下的文件。
+请按以下步骤手动应用诊断补丁。
+
+============================================================
+文件1: mainwindow.cpp
+============================================================
+找到 onFrameReady 函数中第420-434行:
+
+    QImage img(reinterpret_cast<const uchar*>(frame.image.constData()),
+               Protocol::IMAGE_W, Protocol::IMAGE_H,
+               Protocol::IMAGE_W, QImage::Format_Grayscale8);
+    img = img.copy();  // detach
+    m_lastFrameImage = img;
+
+    // 调试: 保存前 5 帧为 BMP, 用于诊断图像内容
+    static int s_savedCount = 0;
+    if (s_savedCount < 5) {
+        QString fname = QStringLiteral("D:/debug_frame_%1.bmp").arg(s_savedCount + 1);
+        if (img.save(fname, "BMP")) {
+            qDebug() << "[DBG] Saved frame image to" << fname;
+            s_savedCount++;
+        }
+    }
+
+替换为:
+
+    // ============ 诊断A: frame.image 原始数据 ============
+    qDebug() << "[DIAG-A] frame.image: size=" << frame.image.size()
+             << "constData ptr=" << static_cast<const void*>(frame.image.constData())
+             << "byte[0]=" << (int)p[0]
+             << "byte[2400]=" << (int)p[2400]
+             << "byte[4799]=" << (int)p[4799];
+
+    QImage img(reinterpret_cast<const uchar*>(frame.image.constData()),
+               Protocol::IMAGE_W, Protocol::IMAGE_H,
+               Protocol::IMAGE_W, QImage::Format_Grayscale8);
+
+    // ============ 诊断C: QImage 构造后, copy前 ============
+    qDebug() << "[DIAG-C] img before copy: isNull=" << img.isNull()
+             << "width=" << img.width()
+             << "height=" << img.height()
+             << "format=" << img.format()
+             << "bytesPerLine=" << img.bytesPerLine()
+             << "byteCount=" << img.sizeInBytes()
+             << "pixelIndex(0,0)=" << img.pixelIndex(0, 0)
+             << "pixelIndex(40,30)=" << img.pixelIndex(40, 30)
+             << "pixelIndex(79,59)=" << img.pixelIndex(79, 59);
+
+    img = img.copy();  // detach
+    m_lastFrameImage = img;
+
+    // ============ 诊断D: copy后 ============
+    const uint8_t *imgBits = img.constBits();
+    qDebug() << "[DIAG-D] img after copy: isNull=" << img.isNull()
+             << "width=" << img.width()
+             << "height=" << img.height()
+             << "format=" << img.format()
+             << "bytesPerLine=" << img.bytesPerLine()
+             << "bits ptr=" << static_cast<const void*>(imgBits)
+             << "pixelIndex(0,0)=" << img.pixelIndex(0, 0)
+             << "pixelIndex(40,30)=" << img.pixelIndex(40, 30)
+             << "pixelIndex(79,59)=" << img.pixelIndex(79, 59);
+    qDebug() << "[DIAG-D2] compare copy vs source:"
+             << "img[0]=" << (int)imgBits[0] << "frame[0]=" << (int)p[0]
+             << "img[2400]=" << (int)imgBits[30*80+40] << "frame[2400]=" << (int)p[2400]
+             << "match=" << (imgBits[0]==p[0] && imgBits[30*80+40]==p[2400]);
+
+    // 调试: 保存前 5 帧为 BMP, 用于诊断图像内容
+    static int s_savedCount = 0;
+    if (s_savedCount < 5) {
+        QString fname = QStringLiteral("D:/debug_frame_%1.bmp").arg(s_savedCount + 1);
+        bool saveOk = img.save(fname, "BMP");
+        qDebug() << "[DIAG-E] save BMP:" << fname << "ok=" << saveOk;
+        if (saveOk) s_savedCount++;
+    }
+
+============================================================
+文件1续: mainwindow.cpp - setFrame调用处
+============================================================
+找到第462行附近:
+
+    m_preview->setFrame(img, frame.valid, frame.gap_pix, gapLeftFull, gapRightFull, actualRow);
+
+在前面加一行诊断:
+
+    qDebug() << "[DIAG-F] before setFrame: img.isNull=" << img.isNull()
+             << "img.width=" << img.width() << "img.height=" << img.height()
+             << "valid=" << frame.valid << "actualRow=" << actualRow;
+    m_preview->setFrame(img, frame.valid, frame.gap_pix, gapLeftFull, gapRightFull, actualRow);
+    qDebug() << "[DIAG-G] after setFrame";
+
+============================================================
+文件2: previewwidget.cpp - setFrame函数
+============================================================
+找到 setFrame 函数(第16-30行):
+
+void PreviewWidget::setFrame(const QImage &img80x60,
+                             bool valid,
+                             int gapPix,
+                             int gapLeft,
+                             int gapRight,
+                             int detectRow)
+{
+    m_image    = img80x60.convertToFormat(QImage::Format_Grayscale8);
+    m_valid    = valid;
+    m_gapPix   = gapPix;
+    m_gapLeft  = gapLeft;
+    m_gapRight = gapRight;
+    m_detectRow = detectRow;
+    update();
+}
+
+替换为:
+
+void PreviewWidget::setFrame(const QImage &img80x60,
+                             bool valid,
+                             int gapPix,
+                             int gapLeft,
+                             int gapRight,
+                             int detectRow)
+{
+    qDebug() << "[DIAG-SET] received img: isNull=" << img80x60.isNull()
+             << "width=" << img80x60.width() << "height=" << img80x60.height()
+             << "format=" << img80x60.format()
+             << "pixelIndex(40,30)=" << img80x60.pixelIndex(40, 30);
+
+    m_image = img80x60.convertToFormat(QImage::Format_Grayscale8);
+
+    qDebug() << "[DIAG-SET2] m_image after convert: isNull=" << m_image.isNull()
+             << "width=" << m_image.width() << "height=" << m_image.height()
+             << "format=" << m_image.format()
+             << "bytesPerLine=" << m_image.bytesPerLine()
+             << "pixelIndex(0,0)=" << m_image.pixelIndex(0, 0)
+             << "pixelIndex(40,30)=" << m_image.pixelIndex(40, 30)
+             << "pixelIndex(79,59)=" << m_image.pixelIndex(79, 59);
+
+    m_valid    = valid;
+    m_gapPix   = gapPix;
+    m_gapLeft  = gapLeft;
+    m_gapRight = gapRight;
+    m_detectRow = detectRow;
+    update();
+}
+
+============================================================
+文件2续: previewwidget.cpp - paintEvent函数
+============================================================
+找到 paintEvent 函数(第41行):
+
+void PreviewWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter p(this);
+
+在开头加诊断:
+
+void PreviewWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    static int s_paintCount = 0;
+    s_paintCount++;
+    if (s_paintCount <= 20 || s_paintCount % 50 == 0) {
+        qDebug() << "[DIAG-PAINT] #" << s_paintCount
+                 << "m_image.isNull=" << m_image.isNull()
+                 << "m_image.width=" << m_image.width()
+                 << "m_image.height=" << m_image.height()
+                 << "widget size=" << width() << "x" << height()
+                 << "m_valid=" << m_valid;
+    }
+
+    QPainter p(this);
+    // ... 后面代码不变
+
+然后在 scaleNearest6x 调用后加诊断:
+找到:
+    QImage scaled = scaleNearest6x(m_image);
+
+改为:
+    QImage scaled = scaleNearest6x(m_image);
+    if (s_paintCount <= 20 || s_paintCount % 50 == 0) {
+        qDebug() << "[DIAG-PAINT2] scaled: isNull=" << scaled.isNull()
+                 << "width=" << scaled.width() << "height=" << scaled.height()
+                 << "pixelIndex(240,180)=" << scaled.pixelIndex(240, 180);
+    }
+
+然后在 drawImage 前加诊断:
+找到:
+    p.drawImage(dst, scaled);
+
+改为:
+    if (s_paintCount <= 20 || s_paintCount % 50 == 0) {
+        qDebug() << "[DIAG-PAINT3] dst rect: x=" << dst.x() << "y=" << dst.y()
+                 << "w=" << dst.width() << "h=" << dst.height()
+                 << "widget=" << width() << "x" << height();
+    }
+    p.drawImage(dst, scaled);
+
+============================================================
+文件3: serialworker.cpp - onReadyRead
+============================================================
+找到 onReadyRead 函数(第66行):
+
+void SerialWorker::onReadyRead()
+{
+    QByteArray data = m_serial->readAll();
+    m_rxTotal += data.size();
+    emit bytesReceived(m_rxTotal);
+    m_parser.feed(data);
+}
+
+替换为:
+
+void SerialWorker::onReadyRead()
+{
+    QByteArray data = m_serial->readAll();
+    m_rxTotal += data.size();
+    emit bytesReceived(m_rxTotal);
+
+    static int s_rxCount = 0;
+    s_rxCount++;
+    if (s_rxCount <= 10 || s_rxCount % 100 == 0) {
+        qDebug() << "[DIAG-RX] #" << s_rxCount
+                 << "read" << data.size() << "bytes, total=" << m_rxTotal
+                 << "thread=" << QThread::currentThreadId();
+    }
+
+    m_parser.feed(data);
+}
+
+============================================================
+文件4: frameparser.cpp - emitFrame
+============================================================
+找到 emitFrame 函数中 frame.image 赋值后(第111行):
+
+    frame.image = m_buf.mid(bodyStart, Protocol::IMAGE_DATA_LEN);
+
+在后面加诊断:
+
+    frame.image = m_buf.mid(bodyStart, Protocol::IMAGE_DATA_LEN);
+
+    static int s_emitCount = 0;
+    s_emitCount++;
+    if (s_emitCount <= 5 || s_emitCount % 50 == 0) {
+        const uint8_t *fp = reinterpret_cast<const uint8_t*>(frame.image.constData());
+        qDebug() << "[DIAG-EMIT] #" << s_emitCount
+                 << "frame.image size=" << frame.image.size()
+                 << "byte[0]=" << (int)fp[0]
+                 << "byte[2400]=" << (int)fp[2400]
+                 << "byte[4799]=" << (int)fp[4799]
+                 << "thread=" << QThread::currentThreadId();
+    }
+
+============================================================
+编译运行后,采集10秒,把所有 [DIAG- 开头的日志发给我
+============================================================

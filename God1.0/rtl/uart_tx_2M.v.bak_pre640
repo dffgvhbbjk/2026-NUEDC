@@ -1,0 +1,363 @@
+//======================================================================
+// Module: uart_tx_2M
+// Function: 2Mbps UART 发送器 + 帧打包
+//   帧格式 (v2 协议):
+//     帧头 4B: AA 55 AA 55
+//     图像 4800B: 80×60 Y 值 (降采样后)
+//     结果 8B: gap_pix_hi, gap_pix_lo, gap_mm_hi, gap_mm_lo,
+//              detect_row_lo, status, gap_left, gap_right
+//     帧尾 4B: 55 AA 55 AA
+//   总长 4816 字节/帧
+//
+//   帧缓冲: 4800 字节双端口 RAM
+//     写端 (pclk): 降采样数据写入
+//     读端 (clk 50MHz): UART 发送时读出
+//   frame_sync 经 2 级同步到 50MHz 域触发发送
+//
+//   status 字节 (v2):
+//     bit0 = gap_valid (单帧)
+//     bit1 = stable_valid (投票稳定)
+//     bit2-3 = detect_row[9:8]
+//     bit4 = v2 标识 (恒 1)
+//     bit5-7 = reserved
+//
+// Clock:  clk = 50MHz (UART 域), pclk = 摄像头域
+//======================================================================
+module uart_tx_2M (
+    input  wire        clk,           // 50MHz (UART 域)
+    input  wire        rst_n,
+    input  wire        pclk,          // 摄像头像素时钟 (帧缓冲写端)
+
+    // 降采样图像数据 (pclk 域)
+    input  wire [7:0]  ds_y_data,
+    input  wire        ds_y_valid,
+    input  wire        frame_sync,    // 帧起始 (pclk 域)
+    input  wire        capture_en,    // 采集使能 (0=停止发送帧, sys_clk 域)
+
+    // 测量结果 (pclk 域, 帧发送时锁存到 50MHz 域)
+    input  wire [15:0] gap_pix,       // 来自 gap_vote (稳定值)
+    input  wire        gap_valid,     // 来自 gap_detect (单帧)
+    input  wire        stable_valid,  // 来自 gap_vote
+    input  wire [15:0] gap_mm_x10,    // 来自 gap_calibrate
+    input  wire [9:0]  detect_row,    // 来自指令寄存器 (50MHz 域)
+    input  wire [6:0]  gap_left,      // 来自 gap_detect (80-wide)
+    input  wire [6:0]  gap_right,     // 来自 gap_detect (80-wide)
+
+    // 串口输出
+    output wire        txd
+);
+
+    //==================================================================
+    // 帧缓冲: Ping-Pong 双缓冲 (消除读写竞争)
+    //   两块 4800 字节 RAM, pclk 写一块时 clk 读另一块, 互不干扰
+    //   wr_buf_sel: pclk 域, 当前写入哪块 (frame_sync 翻转)
+    //   rd_buf_sel:  clk 域, 当前读出哪块 (从 pclk 域同步过来)
+    //==================================================================
+    reg [7:0] frame_buf_a [0:3839];
+    reg [7:0] frame_buf_b [0:3839];
+
+    // 写地址计数器 (pclk 域, 带复位)
+    reg [12:0] wr_addr;       // 0-4799
+    reg        wr_buf_sel;    // 0=A, 1=B
+    always @(posedge pclk or negedge rst_n) begin
+        if (!rst_n) begin
+            wr_addr    <= 13'd0;
+            wr_buf_sel <= 1'b0;
+        end else if (frame_sync) begin
+            wr_addr    <= 13'd0;
+            wr_buf_sel <= ~wr_buf_sel;   // 每帧切换写入缓冲区
+        end else if (ds_y_valid) begin
+            wr_addr <= wr_addr + 1'b1;
+        end
+    end
+
+    // RAM 写 (无复位, M9K 推断)
+    //   wr_buf_sel=0 写 A, wr_buf_sel=1 写 B
+    always @(posedge pclk) begin
+        if (ds_y_valid) begin
+            if (wr_buf_sel == 1'b0)
+                frame_buf_a[wr_addr] <= ds_y_data;
+            else
+                frame_buf_b[wr_addr] <= ds_y_data;
+        end
+    end
+
+    // RAM 读 (无复位, M9K 推断)
+    reg [12:0] rd_addr;
+    reg [7:0]  rd_data;
+    reg        rd_buf_sel;    // 0=A, 1=B (从 wr_buf_sel 同步过来, 但滞后一帧)
+    always @(posedge clk) begin
+        if (rd_buf_sel == 1'b0)
+            rd_data <= frame_buf_a[rd_addr];
+        else
+            rd_data <= frame_buf_b[rd_addr];
+    end
+
+    //==================================================================
+    // CDC: frame_sync 从 pclk 域同步到 clk 域
+    //   同时把 wr_buf_sel (上一帧写入的缓冲区) 同步过来作为 rd_buf_sel
+    //   关键: UART 读的是"刚写完的缓冲区", 不是"正在写的"
+    //==================================================================
+    reg fsync_d1, fsync_d2, fsync_d3;
+    reg wr_sel_d1, wr_sel_d2, wr_sel_d3;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            fsync_d1   <= 1'b0;
+            fsync_d2   <= 1'b0;
+            fsync_d3   <= 1'b0;
+            wr_sel_d1  <= 1'b0;
+            wr_sel_d2  <= 1'b0;
+            wr_sel_d3  <= 1'b0;
+        end else begin
+            fsync_d1  <= frame_sync;
+            fsync_d2  <= fsync_d1;
+            fsync_d3  <= fsync_d2;
+            // 同步 wr_buf_sel: 注意 frame_sync 时 wr_buf_sel 翻转,
+            // 所以 frame_sync 上升沿时 wr_buf_sel 的值就是"刚写完的那块"
+            wr_sel_d1 <= wr_buf_sel;
+            wr_sel_d2 <= wr_sel_d1;
+            wr_sel_d3 <= wr_sel_d2;
+        end
+    end
+    wire frame_ready = capture_en & (fsync_d2 & ~fsync_d3);   // 上升沿 && 采集使能
+
+    // 在 frame_ready 上升沿锁存 rd_buf_sel (读"刚写完的缓冲区")
+    //   实证: 原设计 wr_sel_d2 能正常显示图像; 取反后图像花屏 → 恢复原值
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            rd_buf_sel <= 1'b0;
+        else if (frame_ready)
+            rd_buf_sel <= wr_sel_d2;
+    end
+
+    //==================================================================
+    // 测量结果锁存 (帧发送开始时采样, 此时上一帧数据已稳定)
+    //==================================================================
+    reg [15:0] gap_pix_lat;
+    reg        gap_valid_lat;
+    reg        stable_valid_lat;
+    reg [15:0] gap_mm_lat;
+    reg [6:0]  gap_left_lat;
+    reg [6:0]  gap_right_lat;
+
+    //==================================================================
+    // 发送状态机
+    //==================================================================
+    localparam ST_IDLE     = 3'd0;
+    localparam ST_HEAD     = 3'd1;
+    localparam ST_IMAGE    = 3'd2;
+    localparam ST_RESULTS  = 3'd3;
+    localparam ST_TAIL     = 3'd4;
+
+    reg [2:0]  tx_state;
+    reg [12:0] img_cnt;       // 0-4799
+    reg [3:0]  byte_cnt;      // 头/尾/结果字节计数
+    reg [7:0]  tx_data_reg;
+    reg        tx_flag;
+
+    //==================================================================
+    // UART 发送器 (复用现有模块)
+    //==================================================================
+    wire tx_ready;
+
+    uart_tx #(
+        .UART_BPS (2_000_000),   // 2Mbps (50MHz/2M=25, 0% 误差)
+        .CLK_FREQ (50_000_000)
+    ) u_tx (
+        .sys_clk   (clk),
+        .sys_rst_n (rst_n),
+        .pi_data   (tx_data_reg),
+        .pi_flag   (tx_flag),
+        .ready     (tx_ready),
+        .tx        (txd)
+    );
+
+    //==================================================================
+    // 帧数据
+    //==================================================================
+    // 帧头: AA 55 AA 55
+    // 帧尾: 55 AA 55 AA
+    function [7:0] header_byte;
+        input [3:0] idx;
+        case (idx)
+            4'd0: header_byte = 8'hAA;
+            4'd1: header_byte = 8'h55;
+            4'd2: header_byte = 8'hAA;
+            4'd3: header_byte = 8'h55;
+            default: header_byte = 8'h00;
+        endcase
+    endfunction
+
+    function [7:0] tail_byte;
+        input [3:0] idx;
+        case (idx)
+            4'd0: tail_byte = 8'h55;
+            4'd1: tail_byte = 8'hAA;
+            4'd2: tail_byte = 8'h55;
+            4'd3: tail_byte = 8'hAA;
+            default: tail_byte = 8'h00;
+        endcase
+    endfunction
+
+    //==================================================================
+    // status 字节组装
+    //==================================================================
+    wire [7:0] status_byte = {
+        3'b000,                // bit7-5: reserved
+        1'b1,                  // bit4: v2 标识
+        detect_row[9:8],       // bit3-2: row_hi
+        stable_valid_lat,      // bit1: stable
+        gap_valid_lat          // bit0: valid
+    };
+
+    //==================================================================
+    // 结果字节选择
+    //   0: gap_pix_hi  1: gap_pix_lo
+    //   2: gap_mm_hi   3: gap_mm_lo
+    //   4: detect_row_lo
+    //   5: status
+    //   6: gap_left (0xFF if !gap_valid)
+    //   7: gap_right (0xFF if !gap_valid)
+    //==================================================================
+    function [7:0] result_byte;
+        input [3:0] idx;
+        case (idx)
+            4'd0: result_byte = gap_pix_lat[15:8];
+            4'd1: result_byte = gap_pix_lat[7:0];
+            4'd2: result_byte = gap_mm_lat[15:8];
+            4'd3: result_byte = gap_mm_lat[7:0];
+            4'd4: result_byte = detect_row[7:0];
+            4'd5: result_byte = status_byte;
+            4'd6: result_byte = gap_valid_lat ? {1'b0, gap_left_lat}  : 8'hFF;
+            4'd7: result_byte = gap_valid_lat ? {1'b0, gap_right_lat} : 8'hFF;
+            default: result_byte = 8'h00;
+        endcase
+    endfunction
+
+    //==================================================================
+    // 主状态机
+    //==================================================================
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            tx_state        <= ST_IDLE;
+            img_cnt         <= 13'd0;
+            byte_cnt        <= 4'd0;
+            tx_data_reg     <= 8'd0;
+            tx_flag         <= 1'b0;
+            rd_addr         <= 13'd0;
+            gap_pix_lat     <= 16'd0;
+            gap_valid_lat   <= 1'b0;
+            stable_valid_lat<= 1'b0;
+            gap_mm_lat      <= 16'd0;
+            gap_left_lat    <= 7'd0;
+            gap_right_lat   <= 7'd0;
+        end else begin
+            tx_flag <= 1'b0;   // 默认低
+
+            case (tx_state)
+                //----------------------------------------------------------
+                // IDLE: 等待帧就绪
+                //----------------------------------------------------------
+                ST_IDLE: begin
+                    if (frame_ready) begin
+                        // 锁存测量结果
+                        gap_pix_lat      <= gap_pix;
+                        gap_valid_lat    <= gap_valid;
+                        stable_valid_lat <= stable_valid;
+                        gap_mm_lat       <= gap_mm_x10;
+                        gap_left_lat     <= gap_left;
+                        gap_right_lat    <= gap_right;
+                        // 准备发送帧头
+                        tx_state  <= ST_HEAD;
+                        byte_cnt  <= 4'd0;
+                    end
+                end
+
+                //----------------------------------------------------------
+                // HEAD: 发送 4 字节帧头
+                //   byte_cnt==2 时提前设 rd_addr=0, 让 RAM 在 byte_cnt==3
+                //   拍读出 frame_buf[0], 这样 ST_IMAGE 第一拍 rd_data
+                //   已是 frame_buf[0] (M9K RAM 读延迟 1 拍)
+                //----------------------------------------------------------
+                ST_HEAD: begin
+                    if (tx_ready && !tx_flag) begin   // !tx_flag 防止 work_en 延迟期间重复加载
+                        tx_data_reg <= header_byte(byte_cnt);
+                        tx_flag     <= 1'b1;
+                        if (byte_cnt == 4'd2) begin
+                            rd_addr  <= 13'd0;   // 提前 1 拍, 为 ST_IMAGE 准备
+                            byte_cnt <= byte_cnt + 1'b1;
+                        end else if (byte_cnt == 4'd3) begin
+                            byte_cnt <= 4'd0;
+                            tx_state <= ST_IMAGE;
+                            img_cnt  <= 13'd0;
+                            // rd_addr 已在 byte_cnt==2 拍设为 0, 此处不重复
+                        end else begin
+                            byte_cnt <= byte_cnt + 1'b1;
+                        end
+                    end
+                end
+
+                //----------------------------------------------------------
+                // IMAGE: 发送 4800 字节图像数据
+                //   时序 (修复后):
+                //     HEAD byte_cnt==2 拍: rd_addr<=0
+                //     HEAD byte_cnt==3 拍: rd_data<=frame_buf[0] (RAM 读)
+                //     IMAGE 第 1 拍: rd_data=frame_buf[0], 发送 ✓, rd_addr<=1
+                //     IMAGE 第 2 拍: rd_data=frame_buf[1], 发送 ✓, rd_addr<=2
+                //     ...
+                //     IMAGE 第 4800 拍: rd_data=frame_buf[4799], 发送 ✓
+                //----------------------------------------------------------
+                ST_IMAGE: begin
+                    if (tx_ready && !tx_flag) begin   // !tx_flag 防止 work_en 延迟期间重复加载
+                        if (img_cnt < 13'd3840) begin
+                            // img_cnt=0..4799 对应发送 frame_buf[0..4799]
+                            tx_data_reg <= rd_data;
+                            tx_flag     <= 1'b1;
+                            rd_addr     <= rd_addr + 1'b1;
+                            img_cnt     <= img_cnt + 1'b1;
+                        end else begin
+                            // 4800 字节发完
+                            tx_state <= ST_RESULTS;
+                            byte_cnt <= 4'd0;
+                        end
+                    end
+                end
+
+                //----------------------------------------------------------
+                // RESULTS: 发送 8 字节测量结果
+                //----------------------------------------------------------
+                ST_RESULTS: begin
+                    if (tx_ready && !tx_flag) begin   // !tx_flag 防止 work_en 延迟期间重复加载
+                        tx_data_reg <= result_byte(byte_cnt);
+                        tx_flag     <= 1'b1;
+                        if (byte_cnt == 4'd7) begin
+                            byte_cnt <= 4'd0;
+                            tx_state <= ST_TAIL;
+                        end else begin
+                            byte_cnt <= byte_cnt + 1'b1;
+                        end
+                    end
+                end
+
+                //----------------------------------------------------------
+                // TAIL: 发送 4 字节帧尾
+                //----------------------------------------------------------
+                ST_TAIL: begin
+                    if (tx_ready && !tx_flag) begin   // !tx_flag 防止 work_en 延迟期间重复加载
+                        tx_data_reg <= tail_byte(byte_cnt);
+                        tx_flag     <= 1'b1;
+                        if (byte_cnt == 4'd3) begin
+                            byte_cnt <= 4'd0;
+                            tx_state <= ST_IDLE;
+                        end else begin
+                            byte_cnt <= byte_cnt + 1'b1;
+                        end
+                    end
+                end
+
+                default: tx_state <= ST_IDLE;
+            endcase
+        end
+    end
+
+endmodule

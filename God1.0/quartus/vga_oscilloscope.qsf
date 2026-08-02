@@ -1,0 +1,157 @@
+# --------------------------------------------------------------------------
+# VGA Oscilloscope Project - Quartus Settings File
+# --------------------------------------------------------------------------
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE6E22C8
+set_global_assignment -name TOP_LEVEL_ENTITY vga_dual_mode_top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+
+# Dual-purpose config pins: release nCEO for use as regular I/O
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+# Partition settings
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+# ==========================================================================
+# Pin Assignments
+# ==========================================================================
+
+# Clock and Reset
+set_location_assignment PIN_23 -to sys_clk
+# sys_rst_n: 外部复位按键 (PIN_52), 按下→GND, 低有效
+set_location_assignment PIN_52 -to sys_rst_n
+
+# 所有按键: 开启 FPGA 内部弱上拉 (~25kΩ), 无需外部电阻
+# 未按下 → 上拉至高电平; 按下 → GND → 低电平
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to sys_rst_n
+# freeze_btn (PIN_25) 板载自带外部上拉, 无需内部弱上拉
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to test_btn
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to btn_55
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to btn_58
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to btn_59
+
+# ==========================================================================
+# VGA Output Pins
+# ==========================================================================
+set_location_assignment PIN_32 -to hsync
+set_location_assignment PIN_34 -to vsync
+
+# RGB output (12-bit: 4-bit Red, 4-bit Green, 4-bit Blue)
+set_location_assignment PIN_30 -to rgb[11]
+set_location_assignment PIN_11 -to rgb[10]
+set_location_assignment PIN_7 -to rgb[9]
+set_location_assignment PIN_2 -to rgb[8]
+set_location_assignment PIN_44 -to rgb[7]
+set_location_assignment PIN_42 -to rgb[6]
+set_location_assignment PIN_38 -to rgb[5]
+set_location_assignment PIN_33 -to rgb[4]
+set_location_assignment PIN_31 -to rgb[3]
+set_location_assignment PIN_28 -to rgb[2]
+set_location_assignment PIN_10 -to rgb[1]
+set_location_assignment PIN_3 -to rgb[0]
+
+# ==========================================================================
+# ADC Interface Pins (I2S Slave Mode - FPGA outputs BCLK/LRCLK)
+# ==========================================================================
+set_location_assignment PIN_51 -to adc_mclk
+set_location_assignment PIN_43 -to adc_bclk
+set_location_assignment PIN_49 -to adc_lrclk
+set_location_assignment PIN_46 -to adc_data
+
+# ==========================================================================
+# 74HC595 LED Display Pins (8-digit 7-segment)
+# ==========================================================================
+set_location_assignment PIN_121 -to seg_sclk
+set_location_assignment PIN_125 -to seg_rclk
+set_location_assignment PIN_127 -to seg_din
+# 注: 74HC595 OE 板级已接地(常显), seg_oe 端口已从顶层移除, 无需引脚
+
+# Waveform freeze button (PIN_25, 板载按键, 已验证好用)
+set_location_assignment PIN_25 -to freeze_btn
+
+# Test button — 按下蜂鸣器响两声 (PIN_54)
+set_location_assignment PIN_54 -to test_btn
+
+# Spare buttons (reserved for future use)
+set_location_assignment PIN_55 -to btn_55
+set_location_assignment PIN_58 -to btn_58
+set_location_assignment PIN_59 -to btn_59
+
+# Buzzer output — 高电平触发 (PIN_1, Bank1 Row I/O)
+set_location_assignment PIN_1 -to buzzer
+
+# UART Serial Pins (摄像头通信, sys_clk domain)
+#   uart_rxd: PC → FPGA   uart_txd: FPGA → PC
+set_location_assignment PIN_143 -to uart_rxd
+set_location_assignment PIN_144 -to uart_txd
+
+# ==========================================================================
+# OV5640 Camera Interface Pins (2.5V, 8mA)
+# ==========================================================================
+# 控制信号
+set_location_assignment PIN_112 -to cam_xclk
+set_location_assignment PIN_114 -to cam_rst_n
+set_location_assignment PIN_119 -to cam_pwdn
+set_location_assignment PIN_101 -to cam_sccb_sclk
+set_location_assignment PIN_99 -to cam_sccb_sdat
+# DVP 数据/同步
+set_location_assignment PIN_110 -to cam_pclk
+set_location_assignment PIN_105 -to cam_vsync
+set_location_assignment PIN_98 -to cam_href
+set_location_assignment PIN_132 -to cam_data[0]
+set_location_assignment PIN_128 -to cam_data[1]
+set_location_assignment PIN_126 -to cam_data[2]
+set_location_assignment PIN_124 -to cam_data[3]
+set_location_assignment PIN_120 -to cam_data[4]
+set_location_assignment PIN_111 -to cam_data[5]
+set_location_assignment PIN_106 -to cam_data[6]
+set_location_assignment PIN_104 -to cam_data[7]
+
+# SCCB sdat 开漏使能 (OV5640 配置模块用三态实现开漏)
+set_instance_assignment -name AUTO_OPEN_DRAIN_PINS ON -to cam_sccb_sdat
+
+set_global_assignment -name DEVICE_FILTER_PACKAGE TQFP
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+
+# ==========================================================================
+# Verilog Source Files
+# ==========================================================================
+set_global_assignment -name VERILOG_FILE ../rtl/vga_ctrl_simple.v
+set_global_assignment -name VERILOG_FILE ../rtl/vga_waveform.v
+set_global_assignment -name VERILOG_FILE ../rtl/iis_slave_rx.v
+set_global_assignment -name VERILOG_FILE ../rtl/audio_fifo.v
+set_global_assignment -name VERILOG_FILE ../rtl/vga_dual_mode_top.v
+set_global_assignment -name VERILOG_FILE ../rtl/pile_length_calc.v
+set_global_assignment -name VERILOG_FILE ../rtl/seg_display.v
+set_global_assignment -name VERILOG_FILE ../rtl/buzzer_beep.v
+set_global_assignment -name VERILOG_FILE ../rtl/uart_rx.v
+set_global_assignment -name VERILOG_FILE ../rtl/uart_tx.v
+# OV5640 缝隙检测子系统
+set_global_assignment -name VERILOG_FILE ../rtl/i2c_ctrl.v
+set_global_assignment -name VERILOG_FILE ../rtl/ov5640_config.v
+set_global_assignment -name VERILOG_FILE ../rtl/ov5640_capture.v
+set_global_assignment -name VERILOG_FILE ../rtl/ov5640_poweron.v
+set_global_assignment -name VERILOG_FILE ../rtl/downsample.v
+set_global_assignment -name VERILOG_FILE ../rtl/gap_detect.v
+set_global_assignment -name VERILOG_FILE ../rtl/gap_vote.v
+set_global_assignment -name VERILOG_FILE ../rtl/gap_calibrate.v
+set_global_assignment -name VERILOG_FILE ../rtl/uart_tx_2M.v
+set_global_assignment -name VERILOG_FILE ../rtl/uart_rx_2M.v
+
+# PLL IP core
+set_global_assignment -name QIP_FILE ../quartus/ip_core/clk_gen/clk_gen.qip
+# UART FIFO IP core (dcfifo_mixed_widths: 16→8, depth 2048)
+set_global_assignment -name QIP_FILE ../quartus/ip_core/uart_fifo/uart_fifo.qip
+set_global_assignment -name CDF_FILE output_files/Chain4.cdf
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
