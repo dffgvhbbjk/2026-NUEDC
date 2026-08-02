@@ -1,0 +1,136 @@
+# --------------------------------------------------------------------------
+# VGA Oscilloscope Project - Quartus Settings File
+# --------------------------------------------------------------------------
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE6E22C8
+set_global_assignment -name TOP_LEVEL_ENTITY vga_dual_mode_top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+
+# Dual-purpose config pins: release nCEO for use as regular I/O
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+# Partition settings
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+# ==========================================================================
+# Pin Assignments
+# ==========================================================================
+
+# Clock and Reset
+set_location_assignment PIN_23 -to sys_clk
+# sys_rst_n: 开发板板载按键 (PIN_25), 低有效，板上已有上拉
+set_location_assignment PIN_25 -to sys_rst_n
+
+# 七个按键输入: 开启 FPGA 内部弱上拉, 无需外部电阻
+# 未按下 → 上拉至高电平; 按下 → GND → 低电平
+# 板载复位键 PIN_25 使用开发板自带上拉，不启用 FPGA 内部弱上拉
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to gap_btn_53
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to gap_btn_54
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to btn_55
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to gap_btn_58
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to gap_btn_59
+
+# ==========================================================================
+# VGA Output Pins
+# ==========================================================================
+set_location_assignment PIN_32 -to hsync
+set_location_assignment PIN_34 -to vsync
+
+# RGB output (12-bit: 4-bit Red, 4-bit Green, 4-bit Blue)
+set_location_assignment PIN_30 -to rgb[11]
+set_location_assignment PIN_11 -to rgb[10]
+set_location_assignment PIN_7 -to rgb[9]
+set_location_assignment PIN_2 -to rgb[8]
+set_location_assignment PIN_44 -to rgb[7]
+set_location_assignment PIN_42 -to rgb[6]
+set_location_assignment PIN_38 -to rgb[5]
+set_location_assignment PIN_33 -to rgb[4]
+set_location_assignment PIN_31 -to rgb[3]
+set_location_assignment PIN_28 -to rgb[2]
+set_location_assignment PIN_10 -to rgb[1]
+set_location_assignment PIN_3 -to rgb[0]
+
+# ==========================================================================
+# ADC Interface Pins (I2S Slave Mode - FPGA outputs BCLK/LRCLK)
+# ==========================================================================
+set_location_assignment PIN_51 -to adc_mclk
+set_location_assignment PIN_43 -to adc_bclk
+set_location_assignment PIN_49 -to adc_lrclk
+set_location_assignment PIN_46 -to adc_data
+
+# DAC Interface (PCM5102): PCM1808右声道传感器数据实时回放
+# BCLK/LRCLK 与 PCM1808 共用，仅新增 DIN 输出。
+set_location_assignment PIN_121 -to dac_data
+
+# Waveform freeze/unfreeze button (PIN_52, 外接按键, 按下→GND, 低有效)
+set_location_assignment PIN_52 -to freeze_btn
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to freeze_btn
+
+# Camera gap preset buttons
+set_location_assignment PIN_53 -to gap_btn_53
+set_location_assignment PIN_54 -to gap_btn_54
+set_location_assignment PIN_58 -to gap_btn_58
+set_location_assignment PIN_59 -to gap_btn_59
+
+# PIN_55 采集长度切换: 128 → 256 → 512 → 128
+set_location_assignment PIN_55 -to btn_55
+
+# Buzzer output — 高电平触发 (PIN_1, Bank1 Row I/O)
+set_location_assignment PIN_1 -to buzzer
+
+# UART Serial Pins (loopback test, sys_clk domain)
+#   uart_rxd: PC → FPGA   uart_txd: FPGA → PC
+set_location_assignment PIN_143 -to uart_rxd
+set_location_assignment PIN_144 -to uart_txd
+
+set_global_assignment -name DEVICE_FILTER_PACKAGE TQFP
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 8
+
+# ==========================================================================
+# Verilog Source Files
+# ==========================================================================
+set_global_assignment -name VERILOG_FILE ../rtl/vga_ctrl_simple.v
+set_global_assignment -name VERILOG_FILE ../rtl/audio_fifo.v
+set_global_assignment -name VERILOG_FILE ../rtl/pcm1808_i2s_rx.v
+set_global_assignment -name VERILOG_FILE ../rtl/iis_dac_out.v
+set_global_assignment -name VERILOG_FILE ../rtl/fifo_sample_reader.v
+set_global_assignment -name VERILOG_FILE ../rtl/wave_trigger.v
+set_global_assignment -name VERILOG_FILE ../rtl/wave_smooth.v
+set_global_assignment -name VERILOG_FILE ../rtl/wave_capture.v
+set_global_assignment -name VERILOG_FILE ../rtl/wave_buffer_dp.v
+set_global_assignment -name VERILOG_FILE ../rtl/wave_uart_export.v
+# [已停用] 旧包络波包法 defect_analyzer + 除法定位 defect_distance_calc:
+#   已被新算法 defect_qiudao_classifier 取代且在顶层中不再实例化。
+#   保留源文件供参考, 从工程中移除以免无谓综合/告警。
+# set_global_assignment -name VERILOG_FILE ../rtl/defect_analyzer.v
+# set_global_assignment -name VERILOG_FILE ../rtl/defect_distance_calc.v
+# 缺陷分类器 (5点递减 + 方向翻转计数); 替代旧 LDA 自相关分类器
+set_global_assignment -name VERILOG_FILE ../rtl/defect_qiudao_classifier.v
+set_global_assignment -name SEARCH_PATH ../rtl
+set_global_assignment -name VERILOG_FILE ../rtl/vga_status_overlay.v
+set_global_assignment -name VERILOG_FILE ../rtl/vga_waveform_precision.v
+set_global_assignment -name VERILOG_FILE ../rtl/key_debounce.v
+set_global_assignment -name VERILOG_FILE ../rtl/vga_dual_mode_top.v
+
+
+set_global_assignment -name VERILOG_FILE ../rtl/buzzer_beep.v
+# uart_tx 被 wave_uart_export 使用; uart_rx/uart_fifo_loopback 回环测试已移除
+set_global_assignment -name VERILOG_FILE ../rtl/uart_tx.v
+
+# PLL IP core
+set_global_assignment -name QIP_FILE ../quartus/ip_core/clk_gen/clk_gen.qip
+set_global_assignment -name CDF_FILE output_files/Chain4.cdf
+
+
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

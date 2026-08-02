@@ -1,0 +1,60 @@
+# do sim/batch_run_classifier.do
+# Model Technology ModelSim SE-64 vmap 2020.4 Lib Mapping Utility 2020.10 Oct 13 2020
+# vmap work work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 2020.4 Compiler 2020.10 Oct 13 2020
+# Start time: 20:40:07 on Jul 30,2026
+# vlog -work work "+incdir+rtl" rtl/defect_ac_classifier.v 
+# -- Compiling module defect_ac_classifier
+# 
+# Top level modules:
+# 	defect_ac_classifier
+# End time: 20:40:07 on Jul 30,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim SE-64 vlog 2020.4 Compiler 2020.10 Oct 13 2020
+# Start time: 20:40:07 on Jul 30,2026
+# vlog -work work sim/tb_defect_ac_classifier.v 
+# -- Compiling module tb_defect_ac_classifier
+# 
+# Top level modules:
+# 	tb_defect_ac_classifier
+# End time: 20:40:07 on Jul 30,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -t 1ns -voptargs=""+acc"" -L work work.tb_defect_ac_classifier 
+# Start time: 20:40:07 on Jul 30,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# //  ModelSim SE-64 2020.4 Oct 13 2020
+# //
+# //  Copyright 1991-2020 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading work.tb_defect_ac_classifier(fast)
+# Loading work.defect_ac_classifier(fast)
+# [PASS] vec 0: state=1 class=0 dist=0 conf=2 imp=92
+# [PASS] vec 1: state=1 class=0 dist=0 conf=2 imp=81
+# [PASS] vec 2: state=2 class=1 dist=200 conf=2 imp=86
+# [PASS] vec 3: state=2 class=1 dist=200 conf=2 imp=83
+# [PASS] vec 4: state=2 class=2 dist=307 conf=2 imp=87
+# [PASS] vec 5: state=2 class=2 dist=307 conf=2 imp=89
+# [PASS] vec 6: state=2 class=3 dist=695 conf=2 imp=83
+# [PASS] vec 7: state=2 class=3 dist=695 conf=2 imp=86
+# [PASS] vec 8: state=2 class=4 dist=800 conf=2 imp=87
+# [PASS] vec 9: state=2 class=4 dist=800 conf=2 imp=88
+# [PASS] vec 10: state=0 class=0 dist=0 conf=0 imp=225
+# [PASS] vec 11: state=0 class=0 dist=0 conf=0 imp=338
+# ==== defect_ac_classifier TB: PASS=12 FAIL=0 / 12 ====
+# RESULT: ALL PASS
+# ** Note: $finish    : sim/tb_defect_ac_classifier.v(144)
+#    Time: 11259391 ns  Iteration: 1  Instance: /tb_defect_ac_classifier
+# Break in Module tb_defect_ac_classifier at sim/tb_defect_ac_classifier.v line 144
+# Stopped at sim/tb_defect_ac_classifier.v line 144
+# End time: 20:40:09 on Jul 30,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0

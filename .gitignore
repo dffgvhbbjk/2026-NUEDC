@@ -1,0 +1,46 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Tool/editor-local metadata
+.qoder/
+.claude/settings.local.json
+.vscode/*.user
+**/.git-local-backup/
+
+# FPGA/EDA generated build artifacts
+**/db/
+**/incremental_db/
+**/work/
+**/work_*/
+**/simulation/
+**/output_files/*.rpt
+**/output_files/*.summary
+**/output_files/*.smsg
+**/output_files/*.done
+**/output_files/*.jdi
+**/output_files/*.sld
+**/output_files/*.pin
+**/output_files/*.cdf
+**/output_files/*.html
+**/*.qws
+**/*.qdb
+**/*.qpg
+**/*.qtl
+**/*.vstf
+
+# Temporary analysis and capture output
+**/tmp/
+**/*.vcd
+**/*.out
+
+# OS/editor temporary files
+Thumbs.db
+.DS_Store
+desktop.ini
+*.bak
+*.swp
+*.swo
+~$*

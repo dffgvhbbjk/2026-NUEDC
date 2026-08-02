@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:blog.csdn.net)",
+      "WebFetch(domain:www.cnblogs.com)",
+      "Bash(rm -rf \"d:/fpgawork/vga(1.0)-sxtban/quartus/db\" \"d:/fpgawork/vga(1.0)-sxtban/quartus/incremental_db\" \"d:/fpgawork/vga(1.0)-sxtban/quartus/output_files/greybox_tmp\")"
+    ],
+    "additionalDirectories": [
+      "d:\\fpgawork\\vga(1.0)-sxtban\\rtl"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rm -rf \"d:/fpgawork/vga(1.0)-sxtban/quartus/db\" \"d:/fpgawork/vga(1.0)-sxtban/quartus/incremental_db\" \"d:/fpgawork/vga(1.0)-sxtban/quartus/output_files/greybox_tmp\" 2>/dev/null; echo \"[HOOK] Quartus incremental compile cache cleared after RTL edit\""
+          }
+        ]
+      }
+    ]
+  }
+}

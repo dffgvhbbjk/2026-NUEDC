@@ -1,0 +1,12 @@
+hit_00.memh grp=5 good轻塑 expect: NORMAL cls=0 dist=0 lowconf=0
+hit_01.memh grp=8 good重铁 expect: NORMAL cls=0 dist=0 lowconf=0
+hit_02.memh grp=21 d200塑 expect: DEFECT cls=1 dist=200 lowconf=0
+hit_03.memh grp=22 d200铁 expect: DEFECT cls=1 dist=200 lowconf=0
+hit_04.memh grp=13 d307轻塑 expect: DEFECT cls=2 dist=307 lowconf=0
+hit_05.memh grp=16 d307重铁 expect: DEFECT cls=2 dist=307 lowconf=0
+hit_06.memh grp=9 d695轻塑 expect: DEFECT cls=3 dist=695 lowconf=0
+hit_07.memh grp=12 d695重铁 expect: DEFECT cls=3 dist=695 lowconf=0
+hit_08.memh grp=17 d800轻塑 expect: DEFECT cls=4 dist=800 lowconf=0
+hit_09.memh grp=20 d800重铁 expect: DEFECT cls=4 dist=800 lowconf=0
+hit_10.memh 合成噪声(峰值过小) expect: INVALID
+hit_11.memh grp=20 二次弹跳(imp>=112) expect: INVALID

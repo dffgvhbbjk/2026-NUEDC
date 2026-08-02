@@ -1,0 +1,35 @@
+{
+  "stats": {
+    "DEFECT": {
+      "total": 800,
+      "correct": 285,
+      "wrong": 515,
+      "tp": 285,
+      "fp": 0,
+      "tn": 0,
+      "fn": 515,
+      "position_errors_median": 0.0
+    },
+    "GOOD": {
+      "total": 250,
+      "correct": 106,
+      "wrong": 144,
+      "tp": 0,
+      "fp": 144,
+      "tn": 106,
+      "fn": 0,
+      "position_errors_median": null
+    },
+    "NOISE": {
+      "total": 0,
+      "correct": 0,
+      "wrong": 0,
+      "tp": 0,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "position_errors_median": null
+    }
+  },
+  "total_results": 1050
+}

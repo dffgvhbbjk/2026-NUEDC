@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($f = \"d:\\\\xwechat_files\\\\wxid_r2bs3mhhmmzq22_8757\\\\msg\\\\file\\\\2026-07\\\\vga\\(41\\)\\\\rtl\\\\vga_waveform.v\"; $c = Get-Content $f -Raw; Write-Host \"begin=$\\(\\([regex]::Matches\\($c, '\\\\bbegin\\\\b'\\)\\).Count\\) end=$\\(\\([regex]::Matches\\($c, '\\\\bend\\\\b'\\)\\).Count\\)\"; Write-Host \"lines=$\\(\\(Get-Content $f\\).Count\\)\")",
+      "PowerShell($f = \"d:\\\\xwechat_files\\\\wxid_r2bs3mhhmmzq22_8757\\\\msg\\\\file\\\\2026-07\\\\vga\\(41\\)\\\\rtl\\\\vga_waveform.v\"; $c = Get-Content $f -Raw; Write-Host \"begin=$\\(\\([regex]::Matches\\($c, '\\\\bbegin\\\\b'\\)\\).Count\\) end=$\\(\\([regex]::Matches\\($c, '\\\\bend\\\\b'\\)\\).Count\\) lines=$\\(\\(Get-Content $f\\).Count\\)\")",
+      "PowerShell(foreach \\($f in @\\(\"vga_ctrl_simple.v\", \"vga_waveform.v\"\\)\\) { $p = \"d:\\\\xwechat_files\\\\wxid_r2bs3mhhmmzq22_8757\\\\msg\\\\file\\\\2026-07\\\\vga\\(41\\)\\\\rtl\\\\$f\"; $c = Get-Content $p -Raw; $b = \\([regex]::Matches\\($c, '\\\\bbegin\\\\b'\\)\\).Count; $e = \\([regex]::Matches\\($c, '\\\\bend\\\\b'\\)\\).Count; Write-Host \"$f begin=$b end=$e\" })",
+      "PowerShell($f = \"d:\\\\xwechat_files\\\\wxid_r2bs3mhhmmzq22_8757\\\\msg\\\\file\\\\2026-07\\\\vga\\(41\\)\\\\rtl\\\\vga_waveform.v\"; $c = Get-Content $f -Raw; $b = \\([regex]::Matches\\($c, '\\\\bbegin\\\\b'\\)\\).Count; $e = \\([regex]::Matches\\($c, '\\\\bend\\\\b'\\)\\).Count; Write-Host \"begin=$b end=$e lines=$\\(\\(Get-Content $f\\).Count\\)\")",
+      "PowerShell(foreach \\($f in @\\(\"vga_oscilloscope_top.v\", \"vga_waveform.v\"\\)\\) { $p = \"d:\\\\xwechat_files\\\\wxid_r2bs3mhhmmzq22_8757\\\\msg\\\\file\\\\2026-07\\\\vga\\(41\\)\\\\rtl\\\\$f\"; $c = Get-Content $p -Raw; Write-Host \"$f begin=$\\(\\([regex]::Matches\\($c, '\\\\bbegin\\\\b'\\)\\).Count\\) end=$\\(\\([regex]::Matches\\($c, '\\\\bend\\\\b'\\)\\).Count\\)\" })",
+      "PowerShell(foreach \\($f in @\\(\"vga_oscilloscope_top.v\", \"vga_ctrl_simple.v\", \"vga_waveform.v\"\\)\\) { $p = \"d:\\\\xwechat_files\\\\wxid_r2bs3mhhmmzq22_8757\\\\msg\\\\file\\\\2026-07\\\\vga\\(41\\)\\\\rtl\\\\$f\"; $c = Get-Content $p -Raw; $b = \\([regex]::Matches\\($c, '\\\\bbegin\\\\b'\\)\\).Count; $e = \\([regex]::Matches\\($c, '\\\\bend\\\\b'\\)\\).Count; Write-Host \"$f begin=$b end=$e\" })",
+      "WebSearch"
+    ]
+  }
+}

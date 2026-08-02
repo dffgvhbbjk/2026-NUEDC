@@ -1,0 +1,1251 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    12:00:31 02/13/2019 
+// Design Name: 
+// Module Name:    capture_data 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
+module ADC_CAPTURE_DATA(
+	
+		input ad_bck,
+		input ad_data,
+		input rst_n,
+		input ad_lrck,
+		
+		output reg [23:0] rdldat1,
+		output reg [23:0] rdldat2,
+		
+		output reg ldat_rdy1,
+		output reg ldat_rdy2,
+		
+		
+		output wire trig_sig_ok
+		
+
+    );
+
+	reg [31:0] bck_lcnt1 = 32'd0;
+	reg [31:0] bck_lcnt2 = 32'd0;
+	
+	
+	always @(posedge ad_bck or negedge rst_n )
+	if(!rst_n) begin	
+		bck_lcnt1 <=0;
+		ldat_rdy1 <= 0;
+		rdldat1 <= 24'h112233;	
+
+		bck_lcnt2 <=0;
+		ldat_rdy2 <= 0;
+		rdldat2 <= 24'h112233;	
+				
+	end
+	else begin			
+		if(ad_lrck)
+			begin
+				
+				bck_lcnt2 <= 0;		
+				ldat_rdy2 <= 0;
+				
+				if(bck_lcnt1<24)
+					begin
+						ldat_rdy1 <= 0;
+						bck_lcnt1 <= bck_lcnt1 + 1;
+						rdldat1 <= {rdldat1[22:0],ad_data};//
+					end
+				else 
+					begin
+						bck_lcnt1 <= 0;
+						ldat_rdy1 <= 1;
+					end
+			end
+		else if(~ad_lrck)
+			begin
+				bck_lcnt1 <= 0;		
+				ldat_rdy1 <= 0;
+				
+				begin
+				
+					if(bck_lcnt2<24)
+						begin
+							ldat_rdy2 <= 0;
+							bck_lcnt2 <= bck_lcnt2 + 1;
+							rdldat2 <= {rdldat2[22:0],ad_data};//
+						end
+					else 
+						begin
+							bck_lcnt2 <= 0;
+							ldat_rdy2 <= 1;
+						end
+				end
+				
+			end
+		
+	end
+
+
+	
+	
+	
+	
+	
+	
+
+(* noprune *) reg yuzhi = 1'b0;
+	
+	
+	// 定义16位有符号寄存器存储ADC数据
+reg signed [23:0] adc_data_signed;
+reg signed [23:0] adc_data_signed_r1;
+
+// 同步打拍：将输入数据寄存，优化FPGA时序（标准设计方法）
+always @(posedge ad_bck or negedge rst_n) begin
+    if(!rst_n) begin
+        adc_data_signed <= 24'sd0;     // 复位：有符号数0
+		  adc_data_signed_r1 <= 24'sd0; 
+    end
+    else if(ldat_rdy1)
+		begin
+        adc_data_signed <= rdldat1; // 采样ADC数据
+		  adc_data_signed_r1 <= adc_data_signed ;
+		end
+end
+
+// 阈值判断逻辑：>100 或 < -100 时标志拉高
+always @(posedge ad_bck or negedge rst_n) begin
+    if(!rst_n) begin
+        yuzhi <= 1'b0;        // 复位：标志位拉低
+    end
+    else begin
+        // 16位有符号数直接比较补码大小
+        if((adc_data_signed > 24'sd30000 || adc_data_signed < -24'sd30000) && (adc_data_signed_r1 > 24'sd30000 || adc_data_signed_r1 < -24'sd30000))
+				begin
+					yuzhi <= 1'b1;    // 超限，标志置1
+				end
+        else begin
+            yuzhi <= 1'b0;    // 正常，标志置0
+        end
+    end
+end
+	
+	
+	assign trig_sig_ok = yuzhi;
+	
+
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+	//按键按下后 采集一组触发的数据，写入ram中
+	//当按键按下后，灯会亮，触发完成灯灭，蜂鸣器响
+
+	//按键触发 -> 等待触发数据写入 -> 将触发的一组数据写入另一个RAM -> RAM数据读取在VGA显示
+
+	module ADC_HUANCUN(
+	
+	//系统的时钟和复位信号
+		input sys_clk,
+		input wire rst_n,
+		
+		input wire trig_sig_ok,
+		
+	//ADC传输过来的数据信号，我们只处理ADC数据的高16bit位置
+		input  wire                      ad_bck  ,
+		input  wire  [15:0]        adc_left,
+		input  wire  [15:0]        adc_right,
+		input  wire                      adc_valid,
+		
+	//按键按下后的触发使能信号
+		input wire key_en_start_stop,
+		
+	//另一个RAM的控制信号
+		output reg        vga_wr_ram_en,
+		output reg [9:0] vga_wr_ram_addr,
+		output wire [15:0] vga_wr_ram_data,
+		
+		output wire  [15:0] o_xiugaihou_data_w,
+		
+	//输出当前触发的一组数据中的最大数值
+		output wire signed [15:0] max_value ,
+		
+		
+		input wire vga_display_ram_rdclk,
+		input wire [9:0] vga_display_ram_addr,
+		output wire [15:0] vga_display_ram_dataout,
+		
+		
+		output wire o_quexian_flag,
+		
+		
+		output wire [19:0] smg_display_result,
+		
+		
+	//测试信号输出
+		output wire test_sig1_ila
+		
+		
+	);
+	
+	
+	
+	
+	
+	//对输入的AD数据流进行打拍缓存操作
+	
+	reg  [15:0]        adc_left_r1;
+	reg  [15:0]        adc_right_r1;
+	reg                        adc_valid_r1;
+	
+	//对ADC的数据进行缓存
+	always @ (posedge ad_bck or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				adc_left_r1 <= 16'd0;
+				adc_right_r1 <= 16'd0;
+				adc_valid_r1 <= 1'b0;
+			end 
+		else 
+			begin 
+				adc_left_r1 <= adc_left;
+				adc_right_r1 <= adc_right;
+				adc_valid_r1 <= adc_valid;
+			end 
+	end 
+	
+	//阈值点判断信号,用于判断采样点的数值大小
+	
+//	reg yuzhi = 1'b0;
+	parameter YUZHI_VALUE = 100 ;
+	
+	//如果发现ADC采样点的数值超过一定的阈值，将标志信号拉高
+//	always @ (posedge ad_bck or negedge rst_n)
+//	begin 
+//		if(~rst_n)
+//			yuzhi <= 1'b0;
+//		else if(((~adc_left[15])&&(~adc_left_r1[15]))&& (adc_left[14:0]>(adc_left_r1[14:0]+15'h1770)))
+//			yuzhi <= 1'b1;
+//		else if((adc_left[15]&&adc_left_r1[15])&&((~(adc_left[14:0]-15'h1))>((~(adc_left_r1[14:0]-15'h1))+15'h1770  )  )  )
+//			yuzhi <= 1'b1;
+//		else if(     ((~adc_left[15])&&adc_left_r1[15])   &&   (adc_left[14:0])>((~(adc_left_r1[14:0]-15'h1))+15'h1770  )        )
+//			yuzhi <= 1'b1;
+//		else if(    (adc_left[15]&&(~adc_left_r1[15]))   &&  (~(adc_left[14:0]-15'h1))>(adc_left_r1[14:0]+15'h1770 )          )
+//			yuzhi <= 1'b1;
+//		else
+//			yuzhi <= yuzhi;
+//	end 
+	
+reg trig_sig;
+
+always @(posedge ad_bck or negedge rst_n) begin
+    if (!rst_n) begin
+        trig_sig <= 1'b0;  // 异步复位
+    end else begin
+        // 条件：正数 > 9000  或者  负数 < -9000
+        if ( ((~adc_right[15]) && (adc_right[14:0] > 15'd9000)) ||    // 正数超阈值
+              (adc_right[15]  && (adc_right[14:0] < 15'd27536)) )    // 负数 < -9000
+        begin 
+            trig_sig <= 1'b1;
+        end 
+        else begin 
+            trig_sig <= 1'b0;
+        end
+    end
+end
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//状态机
+	parameter IDLE = 8'd0;
+	parameter S0 = 8'd1;
+	parameter S1 = 8'd2;
+	parameter S2 = 8'd3;
+	parameter S3 = 8'd4;
+	parameter S4 = 8'd5;
+	parameter S5 = 8'd6;
+	
+	reg [7:0] state ;
+	
+	
+	//RAM的写相关信号线控制
+	
+	reg ram_wr_en = 1'b0;
+	reg [11:0] ram_wr_addr = 12'd0;
+	reg signed [15:0]  ram_wr_data = 16'd0;
+	
+	//将找到RAM阈值点的时刻，当前的写地址暂存起来
+	
+	reg [11:0] yuzhi_point_addr = 12'd0;
+	
+	reg [15:0] yuzhi_point_wr_cnt = 16'd0;
+	
+	
+	reg adc_ram_rden = 1'b0;
+	reg [11:0] adc_ram_rdaddress = 12'd0;
+	wire [15:0] adc_ram_dataout ;
+	
+	
+	
+	reg [15:0] delay_cnt = 16'd0;
+	reg ok_read_flag = 1'b0;
+	
+	
+	 reg signed [15:0] max_value_group2 = 16'd0;
+	
+	
+	//当前触发之后，200ms内不再触发
+	
+	reg [31:0] on_work_cnt = 32'd0;
+	
+	
+	
+	
+	
+	always @ (posedge ad_bck or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				state <= IDLE;
+				
+				yuzhi_point_addr <= 12'd0;
+				
+				ram_wr_en <= 1'b0;
+				ram_wr_addr <= 12'd0;
+				ram_wr_data <= 16'd0;
+				yuzhi_point_wr_cnt <= 16'd0;
+			
+			//	adc_ram_rden <= 1'b0;
+			//   adc_ram_rdaddress <= 12'd0;
+				 
+		//		 max_value <= 16'd0;
+				 
+				 delay_cnt <= 16'd0;
+				 ok_read_flag <= 1'b0;
+				 
+				 max_value_group2 <= 16'd0;
+				 on_work_cnt <= 32'd0;
+			
+			end 
+		else 
+			begin 
+				case(state)
+					IDLE:  //检测开始采集标志是否拉高
+						begin  
+							ram_wr_en <= 1'b0;
+						//	ram_wr_addr <= 12'd0;
+							ram_wr_data <= 16'd0;
+							
+							delay_cnt <= 16'd0;
+							ok_read_flag <= 1'b0;
+							
+							on_work_cnt <= 32'd0;
+							
+					//		max_value <= 16'd0;
+							
+					//		adc_ram_rden <= 1'b0;
+					//		adc_ram_rdaddress <= 12'd0;
+						
+							if(key_en_start_stop)
+								begin 
+									state <= S0;
+								end 
+							else 
+								begin 
+									state <= IDLE;
+								end 
+						end 
+					
+					S0: //数据循环写入RAM, 一旦检测到过来的ADC数值达到阈值点，状态机跳转
+						begin 
+							
+							if(adc_valid) //当数据到达的时候，一个个的写入到RAM缓存中
+								begin 
+									ram_wr_en <= 1'b1 ;
+									ram_wr_addr <= ram_wr_addr + 1'b1 ;
+									ram_wr_data <= adc_right ;
+									max_value_group2 <= ($signed(adc_right) <= max_value_group2) ? $signed(adc_right) : max_value_group2 ;
+								end 
+							else 
+								begin 
+									ram_wr_en <= 1'b0;
+									ram_wr_addr <= ram_wr_addr;
+								end 
+							
+							
+							
+							
+							if(trig_sig_ok) //如果检测到阈值之后，状态机跳转，此时需要将ADC的数据再次写入
+								begin 
+									state <= S1;
+									yuzhi_point_addr <= ram_wr_addr ; //如果检测到阈值之后，将当前的地址记住
+									max_value_group2 <= 16'd0;
+								end 
+							else 
+								begin 
+									state <= state;
+								end 
+						end 
+						
+					S1: //在这个状态中继续写入数据 2048 -200 = 1848
+						begin //在检测到阈值之后，后续数据继续写入到RAM中
+						
+//							ram_wr_en <= 1'b1 ;
+//							ram_wr_addr <= ram_wr_addr + 1'b1 ;
+//							ram_wr_data <= adc_left ;
+							
+							if(adc_valid) //当数据到达的时候，一个个的写入到RAM缓存中
+								begin 
+									ram_wr_en <= 1'b1 ;
+									ram_wr_addr <= ram_wr_addr + 1'b1 ;
+									ram_wr_data <= adc_right ;
+									max_value_group2 <= ($signed(adc_right) <= max_value_group2) ? $signed(adc_right) : max_value_group2 ;
+								end 
+							else 
+								begin 
+									ram_wr_en <= 1'b0;
+									ram_wr_addr <= ram_wr_addr;
+								end 
+							
+							if((yuzhi_point_wr_cnt == 1947) && adc_valid)//2048-1-200
+								begin 
+									state <= S2;
+									yuzhi_point_wr_cnt <= 16'd0;
+								end 
+							else if(adc_valid)
+								begin 
+									yuzhi_point_wr_cnt <= yuzhi_point_wr_cnt + 1'b1 ;
+								end 
+						end 
+						
+					S2://将使能信号关闭，关闭当前写操作
+						begin 
+							ram_wr_en <= 1'b0;
+							state <= S3;
+							
+							max_value_group2 <= max_value_group2;
+							
+							yuzhi_point_wr_cnt <= 16'd0;
+							
+							//adc_ram_rdaddress <= yuzhi_point_addr - 200; //读取RAM的地址时候，将地址倒退200个单位
+						end 
+						
+					S3: //将当前RAM的数据写入到另一个RAM中，另一个RAM的深度是2048
+						begin ///////产生一个标志信号，拉高300个时钟周期
+						//	adc_ram_rden <= 1'b1;
+							//adc_ram_rdaddress <= adc_ram_rdaddress + 1'b1;
+							
+							//加入查找最大数值的逻辑
+							
+							
+							if(delay_cnt == 16'd10)
+								begin 
+									delay_cnt <= 16'd0;
+									state <= S4;
+									ok_read_flag <= 1'b0;
+								end 
+							else 
+								begin 
+									delay_cnt <= delay_cnt + 1'b1 ;
+								end 
+							
+							
+							ok_read_flag <= 1'b1;
+							
+							
+//							if(max_value < adc_left)
+//								begin 
+//									max_value <= adc_right;
+//								end 
+//							else 
+//								begin 
+//									max_value <= max_value;
+//								end 
+							
+						
+//							if(yuzhi_point_wr_cnt == 16'd2047)
+//								begin 
+//									yuzhi_point_wr_cnt <= 16'd0;
+//									state <= S4;
+//									adc_ram_rden <= 1'b0;
+//								end 
+//							else 
+//								begin 
+//									yuzhi_point_wr_cnt <= yuzhi_point_wr_cnt + 1'b1 ;
+//								end 
+					
+						end 
+					
+					S4:
+						begin 
+							ok_read_flag <= 1'b0;
+						
+						//	adc_ram_rden <= 1'b0;
+							ram_wr_en <= 1'b0;
+							ram_wr_addr <= ram_wr_addr;
+							ram_wr_data <= 16'd0;
+							
+						//	adc_ram_rden <= 1'b0;
+						//	adc_ram_rdaddress <= 12'd0;
+						
+						
+						if(on_work_cnt == 32'd60_0000)//本次触发之后，200ms内不再触发
+							begin 
+								on_work_cnt <= 32'd0;
+								state <= IDLE;
+							end 
+						else 
+							begin 
+								on_work_cnt <= on_work_cnt + 1'b1;
+						
+							end 
+							
+							
+						end 
+					
+					default :
+						begin 
+						//	adc_ram_rden <= 1'b0;
+							ram_wr_en <= 1'b0;
+							ram_wr_addr <= ram_wr_addr;
+							ram_wr_data <= 16'd0;
+							
+						
+						//	adc_ram_rdaddress <= 12'd0;
+							
+							state <= IDLE;
+					
+					
+						end 
+					
+				endcase 
+			end 
+	end 
+
+		
+
+
+
+
+
+		ADC_RAM	ADC_RAM_inst (
+			.data ( ram_wr_data ),
+			.rdaddress ( adc_ram_rdaddress ),
+			.rdclock (sys_clk  ),
+			.rden (adc_ram_rden  ),
+			.wraddress (ram_wr_addr  ),
+			.wrclock (ad_bck  ),
+			.wren ( ram_wr_en ),
+			.q ( adc_ram_dataout )
+		);
+
+		
+		
+///////////检测rise edge 
+
+
+		reg ok_read_flag_r1 = 1'b0;
+		reg ok_read_flag_r2 = 1'b0;
+		reg ok_read_flag_r3 = 1'b0;
+		reg ok_read_flag_rise_edge = 1'b0;
+		
+		always @ (posedge sys_clk or negedge rst_n)
+		begin 
+			if(~rst_n)
+				begin 
+					ok_read_flag_r1 <= 1'b0;
+					ok_read_flag_r2 <= 1'b0;
+					ok_read_flag_r3 <= 1'b0;
+					ok_read_flag_rise_edge <= 1'b0;
+				end 
+			else 
+				begin 
+					ok_read_flag_r1 <= ok_read_flag;
+					ok_read_flag_r2 <= ok_read_flag_r1;
+					ok_read_flag_r3 <= ok_read_flag_r2;
+					ok_read_flag_rise_edge <= ok_read_flag_r2 && (~ok_read_flag_r3);
+					
+				end 
+		end 
+		
+		
+		//需要读取的开始地址
+		//yuzhi_point_addr - 200
+		
+		
+	//////////////////////////////////////////////////////////////////////////
+
+		parameter IDLE_VGA = 8'd0;
+		parameter S0_VGA = 8'd1;
+		parameter S1_VGA = 8'd2;
+		parameter S2_VGA = 8'd3;
+		
+		reg [7:0] state_vga;
+		
+		reg [15:0] work_cnt = 16'd0;
+		
+		always @ (posedge sys_clk or negedge rst_n)
+		begin 
+			if(~rst_n)
+				begin 
+					state_vga <= IDLE_VGA;
+					adc_ram_rden <= 1'b0;
+					work_cnt <= 16'd0;
+					adc_ram_rdaddress <= 12'd0;
+					
+				//	vga_wr_ram_en <= 1'b0;
+				//	vga_wr_ram_addr <= 11'd0;
+				end 
+			else 
+				begin 
+					case(state_vga)
+						IDLE_VGA:
+							begin 
+								work_cnt <= 16'd0;
+								
+						//		vga_wr_ram_en <= 1'b0;
+						//		vga_wr_ram_addr <= 11'd0;
+							
+								if(ok_read_flag_rise_edge)//如果已经触发一次敲击，则回溯到之前的地址
+									begin 
+										state_vga <= S0_VGA;
+										
+										if(yuzhi_point_addr >= 100)//地址的位宽是12位的
+											begin 
+												adc_ram_rdaddress <= yuzhi_point_addr - 100;
+											end 
+										else 
+											begin 
+											adc_ram_rdaddress <= (yuzhi_point_addr + 4095)-100 ;  //地址越界处理
+											end 
+									end 
+								else 
+									begin 
+										state_vga <= state_vga;
+									end 
+							end 
+						
+						S0_VGA :
+							begin 
+								if(work_cnt == 16'd2000)
+									begin 
+										work_cnt <= 16'd0;
+										state_vga <= S1_VGA;
+									end 
+								else 
+									begin 
+										work_cnt <= work_cnt + 1'b1 ;
+									end
+
+
+								if((work_cnt >= 16'd10) && (work_cnt<=16'd1033))
+									begin 
+										adc_ram_rden <= 1'b1;
+									//	vga_wr_ram_en <= 1'b1;
+										adc_ram_rdaddress <= adc_ram_rdaddress + 1'b1;
+									//	vga_wr_ram_addr <= vga_wr_ram_addr + 1'b1;
+									end
+								else 
+									begin 
+										adc_ram_rden <= 1'b0;
+								//		vga_wr_ram_en <= 1'b0;
+									end 
+
+
+									
+							end 
+							
+							
+						S1_VGA :
+							begin 
+								state_vga <= IDLE_VGA;
+								adc_ram_rden <= 1'b0;
+								work_cnt <= 16'd0;
+								adc_ram_rdaddress <= 12'd0;
+					
+							//	vga_wr_ram_en <= 1'b0;
+							//	vga_wr_ram_addr <= 11'd0;
+							
+							end 
+							
+						default :
+							begin 
+								state_vga <= IDLE_VGA;
+								adc_ram_rden <= 1'b0;
+								work_cnt <= 16'd0;
+								adc_ram_rdaddress <= 12'd0;
+					
+							//	vga_wr_ram_en <= 1'b0;
+							//	vga_wr_ram_addr <= 11'd0;
+							
+							end 
+						
+						
+						
+						
+						
+		
+					endcase
+				end 
+		end 
+		
+		
+		
+		
+		
+		
+		always @ (posedge sys_clk or negedge rst_n)
+		begin 
+			if(~rst_n)
+				begin 
+					vga_wr_ram_en <= 1'b0;
+				end 
+			else if(adc_ram_rden)
+				begin 
+					vga_wr_ram_en <= 1'b1;
+				end 
+			else 
+				begin 
+					vga_wr_ram_en <= 1'b0;
+				end 
+		end 
+		
+		
+		always @ (posedge sys_clk or negedge rst_n)
+		begin 
+			if(~rst_n)
+				begin 
+					vga_wr_ram_addr <= 10'b0;
+				end 
+			else if(vga_wr_ram_en)
+				begin 
+					vga_wr_ram_addr <= vga_wr_ram_addr + 1'b1;
+				end 
+			else 
+				begin 
+					vga_wr_ram_addr <= 10'b0;
+				end 
+		end 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	
+	assign vga_wr_ram_data = adc_ram_dataout ;
+
+
+
+
+///////////////找出当前这一组数据中的最大值所在///后续校订显示位置///////////////////////////////////////////
+///////////////找出当前这一组数据中的最大值所在///后续校订显示位置///////////////////////////////////////////
+///////////////找出当前这一组数据中的最大值所在///后续校订显示位置///////////////////////////////////////////
+
+
+	reg vga_wr_ram_en_r1 = 1'b0;
+	reg [15:0] vga_wr_ram_data_r1 = 16'd0;
+
+
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				vga_wr_ram_en_r1 <= 1'b0;
+				vga_wr_ram_data_r1 <= 16'd0;
+			end
+		else
+			begin 
+				vga_wr_ram_en_r1 <= vga_wr_ram_en ;
+				vga_wr_ram_data_r1 <= vga_wr_ram_data ;
+			end 		
+	end 
+
+
+
+
+
+
+
+
+	reg  [15:0] max_value_group = 16'd0;
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+			if(~rst_n)
+				begin 
+					max_value_group <= 16'd0;
+				end 
+			else if(state == S2)  //当新的一组触发标志过来的适合，将最大值清零
+				begin 
+					max_value_group <= 16'd0;
+				end 
+			else if(vga_wr_ram_en_r1)
+				begin 
+					max_value_group <= (vga_wr_ram_data_r1 <= max_value_group) ? vga_wr_ram_data_r1 : max_value_group ;
+				end 
+			
+	end 
+
+
+	assign max_value = max_value_group ;
+
+
+
+
+/////产生测试数据，将采集的数据先 
+
+	//	(* noprune *) reg signed [16:0] xiugaihou_data = 17'd0;
+//	(* noprune *) reg signed [7:0] xiugaihou_data_jiewei = 8'd0;
+
+
+
+
+//
+//
+//	wire [16:0] addresult ;
+//	wire add_cout;
+//	
+//	ADDIP ADDIP(
+//	.clock(sys_clk),
+//	.dataa({vga_wr_ram_data_r1[15],vga_wr_ram_data_r1[15:0]}),
+//	.datab({max_value_group2[15],max_value_group2[15:0]}),
+//	.cout(add_cout),
+//	.overflow(),
+//	.result(addresult)
+//	);
+//	
+
+
+
+
+
+
+
+ reg  signed [16:0] xiugaihou_data = 17'd0;
+
+ 
+ reg  [9:0] changshu = 10'd128;
+ 
+ 
+
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				xiugaihou_data <= 17'd0;
+			
+			
+			end 
+		else if(state == S2)
+			begin 
+				xiugaihou_data <= 17'd0;
+				
+			
+			end 
+		else if(adc_ram_rden)
+			begin 
+			//	xiugaihou_data <= (vga_wr_ram_data_r1 + max_value_group2) /changshu  +   10  ;
+			
+			//	xiugaihou_data <= ($signed(vga_wr_ram_data_r1) + $signed(max_value_group2)) /$signed(128) + $signed(10) ;
+			
+			//	xiugaihou_data <= addresult /200 + 10 ;
+			
+			xiugaihou_data <= $signed(vga_wr_ram_data_r1) / $signed(128) +  $signed(200) ;
+			
+			end 
+
+	end 
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	assign o_xiugaihou_data_w = xiugaihou_data[15:0];
+	
+	
+	
+
+
+ assign test_sig1_ila = 1'b0 ;
+
+
+
+
+
+
+
+
+ram_vga  ram_vga(
+	.data(vga_wr_ram_data),
+	.rdaddress(vga_display_ram_addr),
+	.rdclock(vga_display_ram_rdclk),
+	.wraddress(vga_wr_ram_addr),
+	.wrclock(sys_clk),
+	.wren(vga_wr_ram_en),
+	.q(vga_display_ram_dataout)
+	);
+
+
+
+
+
+
+////////////算法///////////////////////////////////////////////////////////////////////
+////////////算法///////////////////////////////////////////////////////////////////////
+////////////算法///////////////////////////////////////////////////////////////////////
+
+
+//检测标志 
+	
+	reg check_flag = 1'b0;
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				check_flag <= 1'b0;
+			end 
+		else if((work_cnt >= 106) && (work_cnt <= 540))
+
+			begin 
+				check_flag <= 1'b1;
+			end 
+		else 
+			begin 
+				check_flag <= 1'b0;
+			end 
+	end 
+
+
+
+
+
+
+	reg  [15:0] o_xiugaihou_data_r1 = 16'd0;
+	reg  [15:0] o_xiugaihou_data_r2 = 16'd0;
+	reg  [15:0] o_xiugaihou_data_r3 = 16'd0;
+	reg  [15:0] o_xiugaihou_data_r4 = 16'd0;
+	reg  [15:0] o_xiugaihou_data_r5 = 16'd0;
+	
+	 reg qiudao_panjue = 1'b0;
+
+
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+				begin 
+					o_xiugaihou_data_r1 <= 16'd0;
+					o_xiugaihou_data_r2 <= 16'd0;
+					o_xiugaihou_data_r3 <= 16'd0;
+					o_xiugaihou_data_r4 <= 16'd0;
+					o_xiugaihou_data_r5 <= 16'd0;
+				end 
+		else 
+			begin 
+				o_xiugaihou_data_r1 <= o_xiugaihou_data_w ;
+				o_xiugaihou_data_r2 <= o_xiugaihou_data_r1;
+				o_xiugaihou_data_r3 <= o_xiugaihou_data_r2;
+				
+				o_xiugaihou_data_r4 <= o_xiugaihou_data_r3;
+				o_xiugaihou_data_r5 <= o_xiugaihou_data_r4;
+			end 
+	end 
+
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				qiudao_panjue <= 1'b0;
+			end 
+		else 
+			begin 
+				qiudao_panjue <= ((o_xiugaihou_data_r1 > o_xiugaihou_data_r2) && (o_xiugaihou_data_r2 > o_xiugaihou_data_r3) && (o_xiugaihou_data_r3 > o_xiugaihou_data_r4) && (o_xiugaihou_data_r4 > o_xiugaihou_data_r5)) ? 1'b1 : 1'b0; 
+			end 
+	end 
+
+
+
+	///////检测qiudao_panjue 上升沿 下降沿
+	
+	
+	reg qiudao_panjue_r1 = 1'b0;
+	
+	reg qiudao_panjue_edge = 1'b0;
+	
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				qiudao_panjue_r1 <= 1'b0;
+				qiudao_panjue_edge <= 1'b0;
+			end 
+		else 
+			begin 
+				qiudao_panjue_r1 <= qiudao_panjue;
+				qiudao_panjue_edge <= ((~qiudao_panjue) && qiudao_panjue_r1) | (qiudao_panjue && (~qiudao_panjue_r1)) ;
+			end 
+	end 
+	
+	reg [7:0] qiudao_panjue_edge_cnt = 8'd0;
+
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				qiudao_panjue_edge_cnt <= 8'd0;
+			end 
+		else if(check_flag)
+			begin 
+				qiudao_panjue_edge_cnt <= (qiudao_panjue_edge == 1'b1) ? (qiudao_panjue_edge_cnt + 1'b1) : qiudao_panjue_edge_cnt ;
+			end 
+		else 
+			begin 
+				qiudao_panjue_edge_cnt <= 8'd0;
+			end 
+	end 
+	
+	
+	reg quexian_flag = 1'b0;	
+	
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				quexian_flag <= 1'b0;
+			end
+		else if(adc_ram_rden && (qiudao_panjue_edge_cnt >= 8'd11))
+			begin 
+				quexian_flag <= 1'b1;
+			end 
+		else 
+			begin 
+				quexian_flag <= 1'b0;
+			end 
+	end 
+
+	//检测到异常，拉高150ms
+	
+	
+	
+	assign o_quexian_flag = quexian_flag ;
+	
+	
+	//////////
+	
+	reg quexian_check_flag = 1'b0;
+	reg [7:0] ok_length_cnt = 8'd0;
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				quexian_check_flag <= 1'b0;
+			end 
+		else if((qiudao_panjue_edge_cnt >= 4) && (qiudao_panjue_edge_cnt <= 6))
+			begin 
+				quexian_check_flag <= 1'b1;
+			end 
+		else 
+			begin 
+				quexian_check_flag <= 1'b0;
+			end 
+	end 
+	
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				ok_length_cnt <= 8'd0;
+			end 
+		else if(~((qiudao_panjue_edge_cnt >= 4) && (qiudao_panjue_edge_cnt <= 6)))
+			begin 
+				ok_length_cnt <= 8'd0;
+			end 
+		else if(quexian_check_flag & qiudao_panjue)
+			begin 
+				ok_length_cnt <= ok_length_cnt + 1'b1 ;
+			end 
+		else 
+			begin 
+				ok_length_cnt <= ok_length_cnt ;
+			end 
+	end 
+	
+	
+	
+	//result out 
+	
+	reg [19:0] result_out = 20'd0;
+	
+	always @ (posedge sys_clk or negedge rst_n)
+	begin 
+		if(~rst_n)
+			begin 
+				result_out <= 20'd0;
+			end 
+		else if((qiudao_panjue_edge_cnt == 5) & qiudao_panjue_edge)
+			begin 
+				result_out <= ok_length_cnt * 15 ;
+			end 
+		else 
+			begin 
+				result_out <= result_out;
+			end 
+	end 
+	
+	
+	
+	
+	assign smg_display_result = result_out ;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+	endmodule 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
